@@ -2,7 +2,7 @@ name:                robinhood
 version:             0.1.0.0
 -- synopsis:
 -- description:
-homepage:            https://stash.pnnl.gov/users/bork374/repos/haskell-robinhood-library/robinhood#readme
+homepage:            https://github.com/pacifica/pacifica-robinhood-migration/robinhood#readme
 license:             LGPL
 license-file:        LICENSE
 author:              Mark Borkum
@@ -53,4 +53,4 @@ test-suite robinhood-test
 
 source-repository head
   type:     git
-  location: https://stash.pnnl.gov/users/bork374/repos/haskell-robinhood-library/robinhood
+  location: https://github.com/pacifica/pacifica-robinhood-migration/robinhood
