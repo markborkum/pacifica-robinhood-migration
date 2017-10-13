@@ -6,7 +6,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-import           Control.Monad (forM_, liftM, replicateM, when)
+import           Control.Monad (forM_, replicateM, when)
 import           Control.Monad.Logger (NoLoggingT)
 import qualified Control.Monad.Logger
 import           Control.Monad.Trans.Class (lift)
@@ -44,7 +44,7 @@ arbitraryMaybeUsing gen = do
   m <- arbitrary
   case m of
     Nothing -> return Nothing
-    Just () -> liftM Just gen
+    Just () -> fmap Just gen
 {-# INLINE arbitraryMaybeUsing #-}
 
 instance Arbitrary AccountStatus where
