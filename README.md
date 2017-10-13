@@ -62,7 +62,11 @@ Run the test suite:
 
 Code coverage is enabled by passing the `--coverage` flag:
 
-`stack test --coverage`
+`stack test --coverage --ghc-options "--fforce-recomp"` (see https://github.com/commercialhaskell/stack/issues/1305 for more information about use of `--ghc-options` option to force recompilation)
+
+Alternatively, force recompilation using the `stack clean` command:
+
+`stack clean && stack build --coverage && stack test --coverage`
 
 Generate Haskell programming coverage (https://wiki.haskell.org/Haskell_program_coverage) report:
 
