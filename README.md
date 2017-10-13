@@ -19,8 +19,8 @@ Build requirements:
 Unzip and untar the source distribution:
 
 ```
-tar xcvf haskell-robinhood-library-x.y.z.tar.gz
-cd haskell-robinhood-library-x.y.z
+tar xcvf pacifica-robinhood-migration-x.y.z.tar.gz
+cd pacifica-robinhood-migration-x.y.z
 ```
 (Note: `x.y.z` is the Semantic Version for the source distribution.)
 
@@ -41,8 +41,8 @@ For example, on Red Hat Linux, using Yellowdog Updater, Modified (the `yum` comm
 Retrieve sources:
 
 ```
-git clone https://stash.pnnl.gov/scm/~bork374/haskell-robinhood-library.git
-cd haskell-robinhood-library
+git clone https://github.com/pacifica/pacifica-robinhood-migration.git
+cd pacifica-robinhood-migration
 git checkout master
 ```
 
