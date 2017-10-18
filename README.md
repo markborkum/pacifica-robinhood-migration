@@ -56,13 +56,13 @@ Copy binaries to location on the current user's `PATH` (environment variable):
 
 ## Testing
 
-Run the test suite:
+Run the `robinhood-test` test suite, provided by the `robinhood` package:
 
-`stack test`
+`stack test robinhood:test:robinhood-test`
 
 Code coverage is enabled by passing the `--coverage` flag:
 
-`stack test --coverage`
+`stack test robinhood:test:robinhood-test --coverage`
 
 Generate Haskell programming coverage (https://wiki.haskell.org/Haskell_program_coverage) report:
 
@@ -82,7 +82,7 @@ There are two methods for running supported, from source and after installed.
 
 For example, to run the `robinhood-exe` target, provided by the `robinhood` sub-package:
 
-`stack exec robinhood-exe`
+`stack exec robinhood:exe:robinhood-exe`
 
 ### From installation
 

@@ -18,8 +18,12 @@ before_install:
     - stack setup
 
 install:
-    - stack build
+    - stack build --coverage
 
 script:
-    - stack --no-terminal --skip-ghc-check test --haddock --no-haddock-deps
-    - stack --no-terminal --skip-ghc-check test --coverage
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata:test:pacifica-metadata-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata:test:pacifica-metadata-test --coverage
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-client-curl:test:pacifica-metadata-client-curl-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-client-curl:test:pacifica-metadata-client-curl-test --coverage
+    - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --coverage

@@ -36,6 +36,8 @@ resolver: lts-9.6
 # non-dependency (i.e. a user package), and its test suites and benchmarks
 # will not be run. This is useful for tweaking upstream packages.
 packages:
+- 'pacifica-metadata'
+- 'pacifica-metadata-client-curl'
 - 'robinhood'
 
 # Dependency packages to be pulled from upstream that are not in the resolver
