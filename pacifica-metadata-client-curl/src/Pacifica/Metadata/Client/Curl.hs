@@ -39,7 +39,7 @@ module Pacifica.Metadata.Client.Curl
   ( -- * cURL client types
     CurlClientM(..)
   , CurlClientEnv(..)
-  , CurlClientException(..)
+  , CurlClientError(..)
   , CurlCommandSpec(..)
   , CurlHTTPRequestMethod(..)
   , CurlInvocationContents(..)
@@ -83,8 +83,8 @@ import qualified Text.Printf
 
 -- | The cURL client monad.
 --
-newtype CurlClientM a = CurlClientM { runCurlClientM :: ReaderT CurlClientEnv (ExceptT CurlClientException IO) a }
-  deriving (Functor, Applicative, Monad, MonadError CurlClientException, MonadIO, MonadReader CurlClientEnv)
+newtype CurlClientM a = CurlClientM { runCurlClientM :: ReaderT CurlClientEnv (ExceptT CurlClientError IO) a }
+  deriving (Functor, Applicative, Monad, MonadError CurlClientError, MonadIO, MonadReader CurlClientEnv)
 
 -- | Construct a new cURL client whose monadic computation yields the result of parsing JSON data.
 --
@@ -106,7 +106,7 @@ newCurlClientM Proxy http_request_method0 url_path0 url_params0 = CurlClientM $ 
     ExitSuccess -> do
       case Data.Aeson.eitherDecode' std_out of
         Left message -> do
-          throwError $ CurlClientFromJSONError raw message
+          throwError $ CurlClientJSONDecodeFailure raw message
         Right result -> do
           return result
     ExitFailure exitStatus -> do
@@ -157,10 +157,10 @@ createProcessForCurlCommandSpec http_request_method url spec = case spec of
 data CurlHTTPRequestMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
   deriving (Eq, Ord, Read, Show)
 
--- | An exception raised by the cURL client monad.
+-- | An error within the context of the cURL client monad.
 --
-data CurlClientException
-  = CurlClientFromJSONError CurlInvocationContents String
+data CurlClientError
+  = CurlClientJSONDecodeFailure CurlInvocationContents String
   | CurlClientNonZeroExitStatus CurlInvocationContents Int
   deriving (Eq, Ord, Read, Show)
 
