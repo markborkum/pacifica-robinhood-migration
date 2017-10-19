@@ -41,6 +41,7 @@ module Pacifica.Metadata.Client.Curl
   , CurlClientEnv(..)
   , CurlClientException(..)
   , CurlCommandSpec(..)
+  , CurlHTTPRequestMethod(..)
   , CurlInvocationContents(..)
     -- * APIs
     -- ** Institutions API
@@ -87,9 +88,9 @@ newtype CurlClientM a = CurlClientM { runCurlClientM :: ReaderT CurlClientEnv (E
 
 -- | Construct a new cURL client whose monadic computation yields the result of parsing JSON data.
 --
-newCurlClientM :: (FromJSON a) => Proxy a -> String -> [(String, String)] -> CurlClientM a
-newCurlClientM Proxy url_path0 url_params0 = CurlClientM $ do
-  cp <- Control.Monad.Reader.Class.asks $ createProcessForCurlClientEnv url_path0 url_params0
+newCurlClientM :: (FromJSON a) => Proxy a -> CurlHTTPRequestMethod -> String -> [(String, String)] -> CurlClientM a
+newCurlClientM Proxy http_request_method0 url_path0 url_params0 = CurlClientM $ do
+  cp <- Control.Monad.Reader.Class.asks $ createProcessForCurlClientEnv http_request_method0 url_path0 url_params0
   (Nothing, Just h_std_out, Just h_std_err, h_proc) <- liftIO $ System.Process.createProcess cp
     { System.Process.std_in  = NoStream
     , System.Process.std_out = CreatePipe
@@ -118,8 +119,8 @@ data CurlClientEnv = CurlClientEnv CurlCommandSpec URLType
 
 -- | Create process using environment for cURL client monad.
 --
-createProcessForCurlClientEnv :: String -> [(String, String)] -> CurlClientEnv -> CreateProcess
-createProcessForCurlClientEnv url_path0 url_params0 (CurlClientEnv spec url_type0) = createProcessForCurlCommandSpec url spec
+createProcessForCurlClientEnv :: CurlHTTPRequestMethod -> String -> [(String, String)] -> CurlClientEnv -> CreateProcess
+createProcessForCurlClientEnv http_request_method0 url_path0 url_params0 (CurlClientEnv spec url_type0) = createProcessForCurlCommandSpec http_request_method0 url spec
   where
     url :: URL
     url = URL url_type0 url_path0 url_params0
@@ -142,14 +143,19 @@ instance Default CurlCommandSpec where
 
 -- | Create process using 'URL' and specification for a cURL command.
 --
-createProcessForCurlCommandSpec :: URL -> CurlCommandSpec -> CreateProcess
-createProcessForCurlCommandSpec url spec = case spec of
-  CurlShellCommand cmd_args -> System.Process.shell $ Text.Printf.printf "%s %s" cmd_args urlString
-  CurlRawCommand cmd args -> System.Process.proc cmd $ snoc urlString args
+createProcessForCurlCommandSpec :: CurlHTTPRequestMethod -> URL -> CurlCommandSpec -> CreateProcess
+createProcessForCurlCommandSpec http_request_method url spec = case spec of
+  CurlShellCommand cmd_args -> System.Process.shell $ Text.Printf.printf "%s -X %s %s" cmd_args (show http_request_method) urlString
+  CurlRawCommand cmd args -> System.Process.proc cmd $ "-X" : show http_request_method : snoc urlString args
   where
     urlString :: String
     urlString = Network.URL.exportURL url
 {-# INLINE  createProcessForCurlCommandSpec #-}
+
+-- | HTTP request methods supported by cURL.
+--
+data CurlHTTPRequestMethod = GET | HEAD | POST | PUT | DELETE | CONNECT | OPTIONS | TRACE | PATCH
+  deriving (Eq, Ord, Read, Show)
 
 -- | An exception raised by the cURL client monad.
 --
@@ -187,7 +193,7 @@ getInstitutions
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
   -> CurlClientM [Institution]
-getInstitutions institutionIdMaybe institutionAssociationCDMaybe institutionEncodingMaybe institutionIsForeignMaybe institutionNameMaybe institutionCreatedMaybe institutionDeletedMaybe institutionUpdatedMaybe = newCurlClientM Proxy "institutions" $ Data.Maybe.mapMaybe unwrapQueryParameter
+getInstitutions institutionIdMaybe institutionAssociationCDMaybe institutionEncodingMaybe institutionIsForeignMaybe institutionNameMaybe institutionCreatedMaybe institutionDeletedMaybe institutionUpdatedMaybe = newCurlClientM Proxy GET "institutions" $ Data.Maybe.mapMaybe unwrapQueryParameter
   [ "_id"            .= institutionIdMaybe
   , "association_cd" .= institutionAssociationCDMaybe
   , "encoding"       .= institutionEncodingMaybe
@@ -219,7 +225,7 @@ getInstrumentCustodians
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
   -> CurlClientM [InstrumentCustodian]
-getInstrumentCustodians instrumentCustodianIdMaybe instrumentCustodianCustodianMaybe instrumentCustodianInstrumentMaybe instrumentCustodianCreatedMaybe instrumentCustodianDeletedMaybe instrumentCustodianUpdatedMaybe = newCurlClientM Proxy "instrument_custodian" $ Data.Maybe.mapMaybe unwrapQueryParameter
+getInstrumentCustodians instrumentCustodianIdMaybe instrumentCustodianCustodianMaybe instrumentCustodianInstrumentMaybe instrumentCustodianCreatedMaybe instrumentCustodianDeletedMaybe instrumentCustodianUpdatedMaybe = newCurlClientM Proxy GET "instrument_custodian" $ Data.Maybe.mapMaybe unwrapQueryParameter
   [ "_id"        .= instrumentCustodianIdMaybe
   , "custodian"  .= instrumentCustodianCustodianMaybe
   , "instrument" .= instrumentCustodianInstrumentMaybe
@@ -251,7 +257,7 @@ getJournals
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
   -> CurlClientM [Journal]
-getJournals journalIdMaybe journalEncodingMaybe journalImpactFactorMaybe journalNameMaybe journalWebsiteURLMaybe journalCreatedMaybe journalDeletedMaybe journalUpdatedMaybe = newCurlClientM Proxy "journals" $ Data.Maybe.mapMaybe unwrapQueryParameter
+getJournals journalIdMaybe journalEncodingMaybe journalImpactFactorMaybe journalNameMaybe journalWebsiteURLMaybe journalCreatedMaybe journalDeletedMaybe journalUpdatedMaybe = newCurlClientM Proxy GET "journals" $ Data.Maybe.mapMaybe unwrapQueryParameter
   [ "_id"           .= journalIdMaybe
   , "encoding"      .= journalEncodingMaybe
   , "impact_factor" .= journalImpactFactorMaybe
@@ -291,7 +297,7 @@ getProposals
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
   -> CurlClientM [Proposal]
-getProposals proposalIdMaybe proposalAbstractMaybe proposalAcceptedDateMaybe proposalActualEndDateMaybe proposalActualStartDateMaybe proposalClosedDateMaybe proposalEncodingMaybe proposalProposalTypeMaybe proposalScienceThemeMaybe proposalSubmittedDateMaybe proposalTitleMaybe proposalCreatedMaybe proposalDeletedMaybe proposalUpdatedMaybe = newCurlClientM Proxy "proposals" $ Data.Maybe.mapMaybe unwrapQueryParameter
+getProposals proposalIdMaybe proposalAbstractMaybe proposalAcceptedDateMaybe proposalActualEndDateMaybe proposalActualStartDateMaybe proposalClosedDateMaybe proposalEncodingMaybe proposalProposalTypeMaybe proposalScienceThemeMaybe proposalSubmittedDateMaybe proposalTitleMaybe proposalCreatedMaybe proposalDeletedMaybe proposalUpdatedMaybe = newCurlClientM Proxy GET "proposals" $ Data.Maybe.mapMaybe unwrapQueryParameter
   [ "_id"               .= proposalIdMaybe
   , "abstract"          .= proposalAbstractMaybe
   , "accepted_date"     .= proposalAcceptedDateMaybe
@@ -331,7 +337,7 @@ getUsers
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
   -> CurlClientM [User]
-getUsers userIdMaybe userEncodingMaybe userFirstNameMaybe userLastNameMaybe userMiddleInitialMaybe userNetworkIdMaybe userCreatedMaybe userDeletedMaybe userUpdatedMaybe = newCurlClientM Proxy "users" $ Data.Maybe.mapMaybe unwrapQueryParameter
+getUsers userIdMaybe userEncodingMaybe userFirstNameMaybe userLastNameMaybe userMiddleInitialMaybe userNetworkIdMaybe userCreatedMaybe userDeletedMaybe userUpdatedMaybe = newCurlClientM Proxy GET "users" $ Data.Maybe.mapMaybe unwrapQueryParameter
   [ "_id"            .= userIdMaybe
   , "encoding"       .= userEncodingMaybe
   , "first_name"     .= userFirstNameMaybe
