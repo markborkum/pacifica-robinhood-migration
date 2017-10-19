@@ -41,7 +41,6 @@ module Pacifica.Metadata.Client.Curl
   , CurlClientEnv(..)
   , CurlClientError(..)
   , CurlCommandSpec(..)
-  , CurlHTTPRequestMethod(..)
   , CurlInvocationContents(..)
     -- * APIs
     -- ** Institutions API
