@@ -21,9 +21,13 @@ install:
     - stack build --coverage
 
 script:
+    - stack --no-terminal --skip-ghc-check test curl-client:test:curl-client-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test curl-client:test:curl-client-test --coverage
     - stack --no-terminal --skip-ghc-check test pacifica-metadata:test:pacifica-metadata-test --haddock --no-haddock-deps
     - stack --no-terminal --skip-ghc-check test pacifica-metadata:test:pacifica-metadata-test --coverage
-    - stack --no-terminal --skip-ghc-check test pacifica-metadata-client-curl:test:pacifica-metadata-client-curl-test --haddock --no-haddock-deps
-    - stack --no-terminal --skip-ghc-check test pacifica-metadata-client-curl:test:pacifica-metadata-client-curl-test --coverage
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-servant:test:pacifica-metadata-servant-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-servant:test:pacifica-metadata-servant-test --coverage
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-servant-curl-client:test:pacifica-metadata-servant-curl-client-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test pacifica-metadata-servant-curl-client:test:pacifica-metadata-servant-curl-client-test --coverage
     - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --haddock --no-haddock-deps
     - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --coverage

@@ -10,9 +10,7 @@
 --
 module Pacifica.Metadata
   ( -- * Re-exports
-    module Pacifica.Metadata.API
-  , module Pacifica.Metadata.Types
+    module Pacifica.Metadata.Types
   ) where
 
-import           Pacifica.Metadata.API
 import           Pacifica.Metadata.Types

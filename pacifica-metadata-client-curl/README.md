@@ -1,1 +1,0 @@
-# pacifica-metadata-client-curl
