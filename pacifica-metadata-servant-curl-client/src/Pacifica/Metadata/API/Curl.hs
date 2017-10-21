@@ -111,7 +111,7 @@ import           GHC.TypeLits (KnownNat(), KnownSymbol(), Nat)
 import qualified GHC.TypeLits
 import           Network.Curl.Client (CurlClientM, CurlRequest(..))
 import qualified Network.Curl.Client
-import           Network.HTTP.Types (StdMethod(GET))
+import           Network.HTTP.Types (StdMethod)
 import qualified Network.HTTP.Types
 import           Network.URL (URL(..))
 import           Pacifica.Metadata
@@ -295,8 +295,8 @@ readValue = toClient apiValue def
 data Link = Link
   { _linkSegments :: [String] -- ^ Path segments (in order).
   , _linkQueryParams :: [(String, String)] -- ^ Query parameters.
-  , _linkMethod :: StdMethod -- ^ HTTP request method.
-  , _linkReqBody :: ByteString -- ^ HTTP request body.
+  , _linkRequestMethod :: Maybe StdMethod -- ^ HTTP request method.
+  , _linkRequestBody :: Maybe ByteString -- ^ HTTP request body.
   } deriving (Eq, Ord, Read, Show)
 
 -- | Empty HTTP GET request to root endpoint, i.e., no segments, no query parameters, and no request body.
@@ -305,8 +305,8 @@ instance Default Link where
   def = Link
     { _linkSegments = []
     , _linkQueryParams = []
-    , _linkMethod = GET
-    , _linkReqBody = Data.ByteString.Lazy.empty
+    , _linkRequestMethod = Nothing
+    , _linkRequestBody = Nothing
     }
   {-# INLINE  def #-}
 
@@ -322,20 +322,20 @@ addSegment :: String -> Link -> Link
 addSegment seg l = l { _linkSegments = snoc seg $ _linkSegments l }
 {-# INLINE  addSegment #-}
 
+-- | Set the HTTP request body.
+--
+setRequestBody :: ByteString -> Link -> Link
+setRequestBody bs l = l { _linkRequestBody = Just bs }
+{-# INLINE  setRequestBody #-}
+
 -- | Set the HTTP request method.
 --
-setMethod :: (ReflectMethod method) => Proxy (method :: StdMethod) -> Link -> Link
-setMethod proxy l = l { _linkMethod = stdMethod }
+setRequestMethod :: (ReflectMethod method) => Proxy (method :: StdMethod) -> Link -> Link
+setRequestMethod proxy l = l { _linkRequestMethod = Just stdMethod }
   where
     stdMethod :: StdMethod
     stdMethod = either (error . Text.Printf.printf "ReflectMethod.reflectMethod failed: \"%s\"" . Data.ByteString.Lazy.Char8.unpack . Data.ByteString.Lazy.Char8.fromStrict) id $ Network.HTTP.Types.parseMethod $ reflectMethod proxy
-{-# INLINE  setMethod #-}
-
--- | Set the HTTP request body.
---
-setReqBody :: ByteString -> Link -> Link
-setReqBody bs l = l { _linkReqBody = bs }
-{-# INLINE  setReqBody #-}
+{-# INLINE  setRequestMethod #-}
 
 -- | Run a 'Link'.
 --
@@ -347,8 +347,8 @@ runLink Proxy = runLinkWith Data.Aeson.eitherDecode'
 --
 runLinkWith :: (ByteString -> Either String a) -> Link -> CurlRequest a
 runLinkWith eitherDecode l = CurlRequest
-  { _curlRequestBody = Just $ _linkReqBody l
-  , _curlRequestMethod = Just $ _linkMethod l
+  { _curlRequestBody = _linkRequestBody l
+  , _curlRequestMethod = _linkRequestMethod l
   , _curlRequestMkURL = \url_type0 -> pure (URL url_type0) <*> (Data.List.intercalate "/" . _linkSegments) <*> _linkQueryParams $ l
   , _curlRequestDecode = eitherDecode
   }
@@ -388,7 +388,7 @@ instance (KnownSymbol sym, ToJSON v, HasClient sub) => HasClient (QueryParam sym
 
 instance (ToJSON a, HasClient sub) => HasClient (ReqBody '[JSON] a :> sub) where
   type MkClient (ReqBody '[JSON] a :> sub) = a -> MkClient sub
-  toClient (Proxy :: Proxy (ReqBody '[JSON] a :> sub)) l x = toClient (Proxy :: Proxy sub) $ setReqBody (Data.Aeson.encode x) l
+  toClient (Proxy :: Proxy (ReqBody '[JSON] a :> sub)) l x = toClient (Proxy :: Proxy sub) $ setRequestBody (Data.Aeson.encode x) l
   {-# INLINE  toClient #-}
 
 instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] NoContent) where
@@ -398,7 +398,7 @@ instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasC
 
 instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJSON a) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] a) where
   type MkClient (Verb method statusCode '[JSON] a) = CurlClientM a
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLink (Proxy :: Proxy a) . setMethod (Proxy :: Proxy method)
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLink (Proxy :: Proxy a) . setRequestMethod (Proxy :: Proxy method)
   {-# INLINE  toClient #-}
 
 -- | Implementation of 'head' function that is safe for empty lists.
