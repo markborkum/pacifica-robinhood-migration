@@ -33,6 +33,7 @@ import           Network.HTTP.Types (StdMethod)
 import           Network.URL (URL, URLType)
 import qualified Network.URL
 import           System.Exit (ExitCode(..))
+import qualified System.IO
 import           System.Process (CmdSpec(..), StdStream(CreatePipe, NoStream))
 import qualified System.Process
 import qualified Text.Printf
@@ -78,7 +79,7 @@ fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMet
     , System.Process.std_out = CreatePipe
     , System.Process.std_err = CreatePipe
     }
-  maybe (return ()) (liftIO . uncurry Data.ByteString.Lazy.hPutStr) $ pure (,) <*> h_std_in_Maybe <*> std_in_Maybe
+  maybe (return ()) (uncurry $ \h_std_in std_in -> liftIO $ Data.ByteString.Lazy.hPutStr h_std_in std_in >> System.IO.hClose h_std_in) $ pure (,) <*> h_std_in_Maybe <*> std_in_Maybe
   exitCode <- liftIO $ System.Process.waitForProcess h_proc
   std_out <- liftIO $ Data.ByteString.Lazy.hGetContents h_std_out
   std_err <- liftIO $ Data.ByteString.Lazy.hGetContents h_std_err
