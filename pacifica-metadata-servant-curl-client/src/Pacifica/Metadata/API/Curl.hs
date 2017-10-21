@@ -338,12 +338,6 @@ setRequestMethod proxy l = l { _linkRequestMethod = Just stdMethod }
     stdMethod = either (error . Text.Printf.printf "ReflectMethod.reflectMethod failed: \"%s\"" . Data.ByteString.Lazy.Char8.unpack . Data.ByteString.Lazy.Char8.fromStrict) id $ Network.HTTP.Types.parseMethod $ reflectMethod proxy
 {-# INLINE  setRequestMethod #-}
 
--- | Run a 'Link'.
---
-runLink :: (FromJSON a) => Proxy a -> Link -> CurlRequest a
-runLink Proxy = runLinkWith Data.Aeson.eitherDecode'
-{-# INLINE  runLink #-}
-
 -- | Run a 'Link' with the specified decoder function.
 --
 runLinkWith :: (ByteString -> Either String a) -> Link -> CurlRequest a
@@ -399,7 +393,7 @@ instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasC
 
 instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJSON a) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] a) where
   type MkClient (Verb method statusCode '[JSON] a) = CurlClientM a
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLink (Proxy :: Proxy a) . setRequestMethod (Proxy :: Proxy method)
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLinkWith Data.Aeson.eitherDecode' . setRequestMethod (Proxy :: Proxy method)
   {-# INLINE  toClient #-}
 
 -- | Implementation of 'head' function that is safe for empty lists.
