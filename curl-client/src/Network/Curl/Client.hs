@@ -45,7 +45,7 @@ import qualified Text.Printf
 -- | The cURL client monad.
 --
 newtype CurlClientM a = CurlClientM { getCurlClientM :: ReaderT CurlClientEnv (ExceptT CurlClientErr IO) a }
-  deriving (Functor, Applicative, Monad, MonadIO, MonadError CurlClientErr, MonadReader CurlClientEnv)
+  deriving (Functor, Applicative, Monad, MonadIO, MonadReader CurlClientEnv, MonadError CurlClientErr)
 
 runCurlClientM :: CurlClientM a -> CurlClientEnv -> IO (Either CurlClientErr a)
 runCurlClientM = (runExceptT .) . runReaderT . getCurlClientM
