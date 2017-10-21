@@ -17,6 +17,8 @@ module Network.Curl.Client
     -- * cURL types
   , CurlClientEnv(..)
   , CurlClientErr(..)
+    -- * cURL command specification type
+  , CurlCmdSpec(..)
     -- * cURL request type
   , CurlRequest(..)
   , fromCurlRequest
@@ -29,6 +31,8 @@ import           Control.Monad.Trans.Except (ExceptT, runExceptT)
 import           Control.Monad.Trans.Reader (ReaderT, runReaderT)
 import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy
+import           Data.Default (Default(def))
+import           Data.String (IsString())
 import           Network.HTTP.Types (StdMethod)
 import           Network.URL (URL, URLType)
 import qualified Network.URL
@@ -49,7 +53,7 @@ runCurlClientM = (runExceptT .) . runReaderT . getCurlClientM
 
 -- | The environment for the cURL client monad.
 --
-data CurlClientEnv = CurlClientEnv CmdSpec URLType
+data CurlClientEnv = CurlClientEnv CurlCmdSpec URLType
 
 -- | An error within the context of the cURL client monad.
 --
@@ -57,6 +61,15 @@ data CurlClientErr
   = CurlClientDecodeFailed String
   | CurlClientNonZeroExitCode ByteString Int
   deriving (Eq, Ord, Read, Show)
+
+-- | A cURL command specification.
+--
+newtype CurlCmdSpec = CurlCmdSpec { getCurlCmdSpec :: CmdSpec }
+  deriving (Eq, Show, IsString)
+
+instance Default CurlCmdSpec where
+  def = CurlCmdSpec $ RawCommand "curl" []
+  {-# INLINE  def #-}
 
 -- | A cURL request.
 --
@@ -71,7 +84,7 @@ data CurlRequest a = CurlRequest
 --
 fromCurlRequest :: CurlRequest a -> CurlClientM a
 fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode }) = CurlClientM $ do
-  cp <- asks $ \(CurlClientEnv spec0 url_type0) -> case setCurlRequestURL (mkURL url_type0) $ maybe id setCurlRequestBody std_in_Maybe $ maybe id setCurlRequestMethod stdMethodMaybe $ spec0 of
+  cp <- asks $ \(CurlClientEnv (CurlCmdSpec spec0) url_type0) -> case setCurlRequestURL (mkURL url_type0) $ maybe id setCurlRequestBody std_in_Maybe $ maybe id setCurlRequestMethod stdMethodMaybe $ spec0 of
     ShellCommand cmd_args -> System.Process.shell cmd_args
     RawCommand cmd args -> System.Process.proc cmd args
   (h_std_in_Maybe, Just h_std_out, Just h_std_err, h_proc) <- liftIO $ System.Process.createProcess cp

@@ -18,6 +18,7 @@ library
   exposed-modules:     Network.Curl.Client
   build-depends:       base >= 4.7 && < 5
                      , bytestring
+                     , data-default
                      , http-types
                      , mtl
                      , process

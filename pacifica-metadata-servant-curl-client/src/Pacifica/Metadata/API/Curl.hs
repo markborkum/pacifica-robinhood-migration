@@ -17,6 +17,7 @@
 --
 -- For example, to request the data from a Pacifica Metadata Services deployment at http://0.0.0.0:8121 for the 'User' with @('UserId' 42)@:
 --
+-- > import Data.Default
 -- > import Network.Curl.Client
 -- > import Network.URL
 -- > import Pacifica.Metadata
@@ -26,8 +27,8 @@
 -- > main :: IO ()
 -- > main = do
 -- >   let
--- >     spec :: CmdSpec
--- >     spec = RawCommand "curl" []
+-- >     spec :: CurlCmdSpec
+-- >     spec = def
 -- >     env :: CurlClientEnv
 -- >     env = CurlClientEnv spec $ Absolute $ Host (HTTP False) "0.0.0.0" $ Just 8121
 -- >     mx :: CurlClientM (Maybe User)
