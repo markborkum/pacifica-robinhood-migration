@@ -388,7 +388,7 @@ instance (ToJSON a, HasClient sub) => HasClient (ReqBody '[JSON] a :> sub) where
 
 instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] NoContent) where
   type MkClient (Verb method statusCode '[JSON] NoContent) = CurlClientM NoContent
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = Network.Curl.Client.fromCurlRequest . runLinkWith (const $ Right NoContent)
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = Network.Curl.Client.fromCurlRequest . runLinkWith (const $ Right NoContent) . setRequestMethod (Proxy :: Proxy method)
   {-# INLINE  toClient #-}
 
 instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJSON a) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] a) where
