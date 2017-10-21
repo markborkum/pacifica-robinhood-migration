@@ -19,8 +19,8 @@ Build requirements:
 Unzip and untar the source distribution:
 
 ```
-tar xcvf haskell-robinhood-library-x.y.z.tar.gz
-cd haskell-robinhood-library-x.y.z
+tar xcvf pacifica-robinhood-migration-x.y.z.tar.gz
+cd pacifica-robinhood-migration-x.y.z
 ```
 (Note: `x.y.z` is the Semantic Version for the source distribution.)
 
@@ -41,8 +41,8 @@ For example, on Red Hat Linux, using Yellowdog Updater, Modified (the `yum` comm
 Retrieve sources:
 
 ```
-git clone https://stash.pnnl.gov/scm/~bork374/haskell-robinhood-library.git
-cd haskell-robinhood-library
+git clone https://github.com/pacifica/pacifica-robinhood-migration.git
+cd pacifica-robinhood-migration
 git checkout master
 ```
 
@@ -62,7 +62,11 @@ Run the test suite:
 
 Code coverage is enabled by passing the `--coverage` flag:
 
-`stack test --coverage`
+`stack test --coverage --ghc-options "--fforce-recomp"` (see https://github.com/commercialhaskell/stack/issues/1305 for more information about use of `--ghc-options` option to force recompilation)
+
+Alternatively, force recompilation using the `stack clean` command:
+
+`stack clean && stack build --coverage && stack test --coverage`
 
 Generate Haskell programming coverage (https://wiki.haskell.org/Haskell_program_coverage) report:
 
