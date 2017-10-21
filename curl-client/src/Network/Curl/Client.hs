@@ -71,7 +71,7 @@ data CurlRequest a = CurlRequest
 --
 fromCurlRequest :: CurlRequest a -> CurlClientM a
 fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode }) = CurlClientM $ do
-  cp <- asks $ \(CurlClientEnv spec0 url_type0) -> case maybe id setMethod stdMethodMaybe $ setURL (mkURL url_type0) $ spec0 of
+  cp <- asks $ \(CurlClientEnv spec0 url_type0) -> case setCurlRequestURL (mkURL url_type0) $ maybe id setCurlRequestBody std_in_Maybe $ maybe id setCurlRequestMethod stdMethodMaybe $ spec0 of
     ShellCommand cmd_args -> System.Process.shell cmd_args
     RawCommand cmd args -> System.Process.proc cmd args
   (h_std_in_Maybe, Just h_std_out, Just h_std_err, h_proc) <- liftIO $ System.Process.createProcess cp
@@ -90,29 +90,36 @@ fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMet
     ExitFailure n -> throwError $ CurlClientNonZeroExitCode std_err n
 {-# INLINE  fromCurlRequest #-}
 
--- | Set the URL.
---
-setURL :: URL -> CmdSpec -> CmdSpec
-setURL url spec =
-  let
-    urlString :: String
-    urlString = Network.URL.exportURL url
-  in case spec of
-    ShellCommand cmd_args -> ShellCommand $ Text.Printf.printf "%s '%s'" cmd_args urlString
-    RawCommand cmd args -> RawCommand cmd $ snoc urlString args
-{-# INLINE  setURL #-}
-
 -- | Set the HTTP method.
 --
-setMethod :: StdMethod -> CmdSpec -> CmdSpec
-setMethod stdMethod spec =
+setCurlRequestMethod :: StdMethod -> CmdSpec -> CmdSpec
+setCurlRequestMethod stdMethod spec =
   let
     stdMethodString :: String
     stdMethodString = show stdMethod
   in case spec of
     ShellCommand cmd_args -> ShellCommand $ Text.Printf.printf "%s -X %s" cmd_args stdMethodString
     RawCommand cmd args -> RawCommand cmd $ "-X" : stdMethodString : args
-{-# INLINE  setMethod #-}
+{-# INLINE  setCurlRequestMethod #-}
+
+-- | Set the request body.
+--
+setCurlRequestBody :: ByteString -> CmdSpec -> CmdSpec
+setCurlRequestBody _ (ShellCommand cmd_args) = ShellCommand $ Text.Printf.printf "%s --data-binary @-" cmd_args
+setCurlRequestBody _ (RawCommand cmd args) = RawCommand cmd $ "--data-binary" : "@-" : args
+{-#  INLINE setCurlRequestBody #-}
+
+-- | Set the URL.
+--
+setCurlRequestURL :: URL -> CmdSpec -> CmdSpec
+setCurlRequestURL url spec =
+  let
+    urlString :: String
+    urlString = Network.URL.exportURL url
+  in case spec of
+    ShellCommand cmd_args -> ShellCommand $ Text.Printf.printf "%s '%s'" cmd_args urlString
+    RawCommand cmd args -> RawCommand cmd $ snoc urlString args
+{-# INLINE  setCurlRequestURL #-}
 
 -- | Append an element to a list.
 --
