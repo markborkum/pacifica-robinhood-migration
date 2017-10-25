@@ -70,20 +70,10 @@ type AnalyticalToolAPI
     :> Get '[JSON] [AnalyticalTool]
   :<|> "analytical_tools"
     :> QueryParam "_id" AnalyticalToolId
-    :> QueryParam "encoding" Text
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] AnalyticalTool
     :> PostNoContent '[JSON] NoContent
   :<|> "analytical_tools"
     :> QueryParam "_id" AnalyticalToolId
-    :> QueryParam "encoding" Text
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type AnalyticalToolProposalAPI
@@ -102,20 +92,10 @@ type AnalyticalToolProposalAPI
     :> Get '[JSON] [AnalyticalToolProposal]
   :<|> "atool_proposal"
     :> QueryParam "_id" AnalyticalToolProposalId
-    :> QueryParam "analytical_tool" AnalyticalToolId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] AnalyticalToolProposal
     :> PostNoContent '[JSON] NoContent
   :<|> "atool_proposal"
     :> QueryParam "_id" AnalyticalToolProposalId
-    :> QueryParam "analytical_tool" AnalyticalToolId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type AnalyticalToolTransactionAPI
@@ -134,20 +114,10 @@ type AnalyticalToolTransactionAPI
     :> Get '[JSON] [AnalyticalToolTransaction]
   :<|> "atool_transaction"
     :> QueryParam "_id" AnalyticalToolTransactionId
-    :> QueryParam "analytical_tool" AnalyticalToolId
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] AnalyticalToolTransaction
     :> PostNoContent '[JSON] NoContent
   :<|> "atool_transaction"
     :> QueryParam "_id" AnalyticalToolTransactionId
-    :> QueryParam "analytical_tool" AnalyticalToolId
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type CitationAPI
@@ -174,36 +144,10 @@ type CitationAPI
     :> Get '[JSON] [Citation]
   :<|> "citations"
     :> QueryParam "_id" CitationId
-    :> QueryParam "abstract_text" Text
-    :> QueryParam "article_title" Text
-    :> QueryParam "doi_reference" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "journal" JournalId
-    :> QueryParam "journal_issue" Int
-    :> QueryParam "journal_volume" Int
-    :> QueryParam "page_range" Text
-    :> QueryParam "release_authorization_id" ReleaseAuthorizationId
-    :> QueryParam "xml_text" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Citation
     :> PostNoContent '[JSON] NoContent
   :<|> "citations"
     :> QueryParam "_id" CitationId
-    :> QueryParam "abstract_text" Text
-    :> QueryParam "article_title" Text
-    :> QueryParam "doi_reference" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "journal" JournalId
-    :> QueryParam "journal_issue" Int
-    :> QueryParam "journal_volume" Int
-    :> QueryParam "page_range" Text
-    :> QueryParam "release_authorization_id" ReleaseAuthorizationId
-    :> QueryParam "xml_text" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type CitationContributorAPI
@@ -223,22 +167,10 @@ type CitationContributorAPI
     :> Get '[JSON] [CitationContributor]
   :<|> "citation_contributor"
     :> QueryParam "_id" CitationContributorId
-    :> QueryParam "author" ContributorId
-    :> QueryParam "author_precedence" Int
-    :> QueryParam "citation" CitationId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] CitationContributor
     :> PostNoContent '[JSON] NoContent
   :<|> "citation_contributor"
     :> QueryParam "_id" CitationContributorId
-    :> QueryParam "author" ContributorId
-    :> QueryParam "author_precedence" Int
-    :> QueryParam "citation" CitationId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type CitationKeywordAPI
@@ -257,20 +189,10 @@ type CitationKeywordAPI
     :> Get '[JSON] [CitationKeyword]
   :<|> "citation_keyword"
     :> QueryParam "_id" CitationKeywordId
-    :> QueryParam "citation" CitationId
-    :> QueryParam "keyword" KeywordId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] CitationKeyword
     :> PostNoContent '[JSON] NoContent
   :<|> "citation_keyword"
     :> QueryParam "_id" CitationKeywordId
-    :> QueryParam "citation" CitationId
-    :> QueryParam "keyword" KeywordId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type CitationProposalAPI
@@ -289,20 +211,10 @@ type CitationProposalAPI
     :> Get '[JSON] [CitationProposal]
   :<|> "citation_proposal"
     :> QueryParam "_id" CitationProposalId
-    :> QueryParam "citation" CitationId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] CitationProposal
     :> PostNoContent '[JSON] NoContent
   :<|> "citation_proposal"
     :> QueryParam "_id" CitationProposalId
-    :> QueryParam "citation" CitationId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type ContributorAPI
@@ -326,30 +238,10 @@ type ContributorAPI
     :> Get '[JSON] [Contributor]
   :<|> "contributors"
     :> QueryParam "_id" ContributorId
-    :> QueryParam "dept_code" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "first_name" Text
-    :> QueryParam "institution" InstitutionId
-    :> QueryParam "last_name" Text
-    :> QueryParam "middle_initial" Text
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Contributor
     :> PostNoContent '[JSON] NoContent
   :<|> "contributors"
     :> QueryParam "_id" ContributorId
-    :> QueryParam "dept_code" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "first_name" Text
-    :> QueryParam "institution" InstitutionId
-    :> QueryParam "last_name" Text
-    :> QueryParam "middle_initial" Text
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type FileAPI
@@ -376,36 +268,10 @@ type FileAPI
     :> Get '[JSON] [File]
   :<|> "files"
     :> QueryParam "_id" FileId
-    :> QueryParam "ctime" LocalTime
-    :> QueryParam "encoding" Text
-    :> QueryParam "hashsum" Text
-    :> QueryParam "hashtype" Text
-    :> QueryParam "mimetype" Text
-    :> QueryParam "mtime" LocalTime
-    :> QueryParam "name" Text
-    :> QueryParam "size" Int
-    :> QueryParam "subdir" Text
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] File
     :> PostNoContent '[JSON] NoContent
   :<|> "files"
     :> QueryParam "_id" FileId
-    :> QueryParam "ctime" LocalTime
-    :> QueryParam "encoding" Text
-    :> QueryParam "hashsum" Text
-    :> QueryParam "hashtype" Text
-    :> QueryParam "mimetype" Text
-    :> QueryParam "mtime" LocalTime
-    :> QueryParam "name" Text
-    :> QueryParam "size" Int
-    :> QueryParam "subdir" Text
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type FileKeyValueAPI
@@ -425,22 +291,10 @@ type FileKeyValueAPI
     :> Get '[JSON] [FileKeyValue]
   :<|> "file_key_value"
     :> QueryParam "_id" FileKeyValueId
-    :> QueryParam "file" FileId
-    :> QueryParam "key" KeyId
-    :> QueryParam "value" ValueId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] FileKeyValue
     :> PostNoContent '[JSON] NoContent
   :<|> "file_key_value"
     :> QueryParam "_id" FileKeyValueId
-    :> QueryParam "file" FileId
-    :> QueryParam "key" KeyId
-    :> QueryParam "value" ValueId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type GroupAPI
@@ -460,22 +314,10 @@ type GroupAPI
     :> Get '[JSON] [Group]
   :<|> "groups"
     :> QueryParam "_id" GroupId
-    :> QueryParam "encoding" Text
-    :> QueryParam "is_admin" Bool
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Group
     :> PostNoContent '[JSON] NoContent
   :<|> "groups"
     :> QueryParam "_id" GroupId
-    :> QueryParam "encoding" Text
-    :> QueryParam "is_admin" Bool
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type InstitutionAPI
@@ -496,24 +338,10 @@ type InstitutionAPI
     :> Get '[JSON] [Institution]
   :<|> "institutions"
     :> QueryParam "_id" JournalId
-    :> QueryParam "association_cd" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "is_foreign" Bool
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Institution
     :> PostNoContent '[JSON] NoContent
   :<|> "institutions"
     :> QueryParam "_id" JournalId
-    :> QueryParam "association_cd" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "is_foreign" Bool
-    :> QueryParam "name" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type InstitutionPersonAPI
@@ -532,20 +360,10 @@ type InstitutionPersonAPI
     :> Get '[JSON] [InstitutionPerson]
   :<|> "institution_person"
     :> QueryParam "_id" InstitutionPersonId
-    :> QueryParam "institution" InstitutionId
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] InstitutionPerson
     :> PostNoContent '[JSON] NoContent
   :<|> "institution_person"
     :> QueryParam "_id" InstitutionPersonId
-    :> QueryParam "institution" InstitutionId
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type InstrumentAPI
@@ -567,26 +385,10 @@ type InstrumentAPI
     :> Get '[JSON] [Instrument]
   :<|> "instruments"
     :> QueryParam "_id" InstrumentId
-    :> QueryParam "active" Bool
-    :> QueryParam "display_name" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "name" Text
-    :> QueryParam "name_short" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Instrument
     :> PostNoContent '[JSON] NoContent
   :<|> "instruments"
     :> QueryParam "_id" InstrumentId
-    :> QueryParam "active" Bool
-    :> QueryParam "display_name" Text
-    :> QueryParam "encoding" Text
-    :> QueryParam "name" Text
-    :> QueryParam "name_short" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type InstrumentCustodianAPI
@@ -605,20 +407,10 @@ type InstrumentCustodianAPI
     :> Get '[JSON] [InstrumentCustodian]
   :<|> "instrument_custodian"
     :> QueryParam "_id" InstrumentCustodianId
-    :> QueryParam "custodian" UserId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] InstrumentCustodian
     :> PostNoContent '[JSON] NoContent
   :<|> "instrument_custodian"
     :> QueryParam "_id" InstrumentCustodianId
-    :> QueryParam "custodian" UserId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type InstrumentGroupAPI
@@ -637,20 +429,10 @@ type InstrumentGroupAPI
     :> Get '[JSON] [InstrumentGroup]
   :<|> "instrument_group"
     :> QueryParam "_id" InstrumentGroupId
-    :> QueryParam "group" GroupId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] InstrumentGroup
     :> PostNoContent '[JSON] NoContent
   :<|> "instrument_group"
     :> QueryParam "_id" InstrumentGroupId
-    :> QueryParam "group" GroupId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type JournalAPI
@@ -671,24 +453,10 @@ type JournalAPI
     :> Get '[JSON] [Journal]
   :<|> "journals"
     :> QueryParam "_id" JournalId
-    :> QueryParam "encoding" Text
-    :> QueryParam "impact_factor" Double
-    :> QueryParam "name" Text
-    :> QueryParam "website_url" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Journal
     :> PostNoContent '[JSON] NoContent
   :<|> "journals"
     :> QueryParam "_id" JournalId
-    :> QueryParam "encoding" Text
-    :> QueryParam "impact_factor" Double
-    :> QueryParam "name" Text
-    :> QueryParam "website_url" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type KeyAPI
@@ -707,20 +475,10 @@ type KeyAPI
     :> Get '[JSON] [Key]
   :<|> "keys"
     :> QueryParam "_id" KeyId
-    :> QueryParam "encoding" Text
-    :> QueryParam "key" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Key
     :> PostNoContent '[JSON] NoContent
   :<|> "keys"
     :> QueryParam "_id" KeyId
-    :> QueryParam "encoding" Text
-    :> QueryParam "key" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type KeywordAPI
@@ -739,20 +497,10 @@ type KeywordAPI
     :> Get '[JSON] [Keyword]
   :<|> "keywords"
     :> QueryParam "_id" KeywordId
-    :> QueryParam "encoding" Text
-    :> QueryParam "keyword" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Keyword
     :> PostNoContent '[JSON] NoContent
   :<|> "keywords"
     :> QueryParam "_id" KeywordId
-    :> QueryParam "encoding" Text
-    :> QueryParam "keyword" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type ProposalAPI
@@ -779,36 +527,10 @@ type ProposalAPI
     :> Get '[JSON] [Proposal]
   :<|> "proposals"
     :> QueryParam "_id" ProposalId
-    :> QueryParam "abstract" Text
-    :> QueryParam "accepted_date" Day
-    :> QueryParam "actual_end_date" Day
-    :> QueryParam "actual_start_date" Day
-    :> QueryParam "closed_date" Day
-    :> QueryParam "encoding" Text
-    :> QueryParam "proposal_type" Text
-    :> QueryParam "science_theme" Text
-    :> QueryParam "submitted_date" LocalTime
-    :> QueryParam "title" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Proposal
     :> PostNoContent '[JSON] NoContent
   :<|> "proposals"
     :> QueryParam "_id" ProposalId
-    :> QueryParam "abstract" Text
-    :> QueryParam "accepted_date" Day
-    :> QueryParam "actual_end_date" Day
-    :> QueryParam "actual_start_date" Day
-    :> QueryParam "closed_date" Day
-    :> QueryParam "encoding" Text
-    :> QueryParam "proposal_type" Text
-    :> QueryParam "science_theme" Text
-    :> QueryParam "submitted_date" LocalTime
-    :> QueryParam "title" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type ProposalInstrumentAPI
@@ -827,20 +549,10 @@ type ProposalInstrumentAPI
     :> Get '[JSON] [ProposalInstrument]
   :<|> "proposal_instrument"
     :> QueryParam "_id" ProposalInstrumentId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] ProposalInstrument
     :> PostNoContent '[JSON] NoContent
   :<|> "proposal_instrument"
     :> QueryParam "_id" ProposalInstrumentId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type ProposalParticipantAPI
@@ -859,20 +571,10 @@ type ProposalParticipantAPI
     :> Get '[JSON] [ProposalParticipant]
   :<|> "proposal_participant"
     :> QueryParam "_id" ProposalParticipantId
-    :> QueryParam "person" UserId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] ProposalParticipant
     :> PostNoContent '[JSON] NoContent
   :<|> "proposal_participant"
     :> QueryParam "_id" ProposalParticipantId
-    :> QueryParam "person" UserId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type TransactionAPI
@@ -892,22 +594,10 @@ type TransactionAPI
     :> Get '[JSON] [Transaction]
   :<|> "transactions"
     :> QueryParam "_id" TransactionId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "submitter" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Transaction
     :> PostNoContent '[JSON] NoContent
   :<|> "transactions"
     :> QueryParam "_id" TransactionId
-    :> QueryParam "instrument" InstrumentId
-    :> QueryParam "proposal" ProposalId
-    :> QueryParam "submitter" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type TransactionKeyValueAPI
@@ -927,22 +617,10 @@ type TransactionKeyValueAPI
     :> Get '[JSON] [TransactionKeyValue]
   :<|> "trans_key_value"
     :> QueryParam "_id" TransactionKeyValueId
-    :> QueryParam "key" KeyId
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "value" ValueId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] TransactionKeyValue
     :> PostNoContent '[JSON] NoContent
   :<|> "trans_key_value"
     :> QueryParam "_id" TransactionKeyValueId
-    :> QueryParam "key" KeyId
-    :> QueryParam "transaction" TransactionId
-    :> QueryParam "value" ValueId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type UserAPI
@@ -964,26 +642,10 @@ type UserAPI
     :> Get '[JSON] [User]
   :<|> "users"
     :> QueryParam "_id" UserId
-    :> QueryParam "encoding" Text
-    :> QueryParam "first_name" Text
-    :> QueryParam "last_name" Text
-    :> QueryParam "middle_initial" Text
-    :> QueryParam "network_id" NetworkId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] User
     :> PostNoContent '[JSON] NoContent
   :<|> "users"
     :> QueryParam "_id" UserId
-    :> QueryParam "encoding" Text
-    :> QueryParam "first_name" Text
-    :> QueryParam "last_name" Text
-    :> QueryParam "middle_initial" Text
-    :> QueryParam "network_id" NetworkId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type UserGroupAPI
@@ -1002,20 +664,10 @@ type UserGroupAPI
     :> Get '[JSON] [UserGroup]
   :<|> "user_group"
     :> QueryParam "_id" UserGroupId
-    :> QueryParam "group" GroupId
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] UserGroup
     :> PostNoContent '[JSON] NoContent
   :<|> "user_group"
     :> QueryParam "_id" UserGroupId
-    :> QueryParam "group" GroupId
-    :> QueryParam "person" UserId
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 type ValueAPI
@@ -1034,20 +686,10 @@ type ValueAPI
     :> Get '[JSON] [Value]
   :<|> "values"
     :> QueryParam "_id" ValueId
-    :> QueryParam "encoding" Text
-    :> QueryParam "value" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> ReqBody '[JSON] Value
     :> PostNoContent '[JSON] NoContent
   :<|> "values"
     :> QueryParam "_id" ValueId
-    :> QueryParam "encoding" Text
-    :> QueryParam "value" Text
-    :> QueryParam "created" LocalTime
-    :> QueryParam "deleted" LocalTime
-    :> QueryParam "updated" LocalTime
     :> DeleteNoContent '[JSON] NoContent
 
 api :: Proxy API
