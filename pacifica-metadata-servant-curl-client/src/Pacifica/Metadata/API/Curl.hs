@@ -42,59 +42,59 @@
 module Pacifica.Metadata.API.Curl
   ( -- * API implementations
     -- ** AnalyticalTool type
-    createAnalyticalTool , readAnalyticalTool , readAnalyticalTool' , updateAnalyticalTool , updateAnalyticalTool' , destroyAnalyticalTool , destroyAnalyticalTool'
+    createAnalyticalTool , readAnalyticalTool , readAnalyticalTool' , updateAnalyticalTool , destroyAnalyticalTool
     -- ** AnalyticalToolProposal type
   , createAnalyticalToolProposal , readAnalyticalToolProposal , updateAnalyticalToolProposal , destroyAnalyticalToolProposal
     -- ** AnalyticalToolTransaction type
   , createAnalyticalToolTransaction , readAnalyticalToolTransaction , updateAnalyticalToolTransaction , destroyAnalyticalToolTransaction
     -- ** Citation type
-  , readCitation
+  , createCitation , readCitation , updateCitation , destroyCitation
     -- ** CitationContributor type
-  , readCitationContributor
+  , createCitationContributor , readCitationContributor , updateCitationContributor , destroyCitationContributor
     -- ** CitationKeyword type
-  , readCitationKeyword
+  , createCitationKeyword , readCitationKeyword , updateCitationKeyword , destroyCitationKeyword
     -- ** CitationProposal type
-  , readCitationProposal
+  , createCitationProposal , readCitationProposal , updateCitationProposal , destroyCitationProposal
     -- ** Contributor type
-  , readContributor
+  , createContributor , readContributor , updateContributor , destroyContributor
     -- ** File type
-  , readFile
+  , createFile , readFile , updateFile , destroyFile
     -- ** FileKeyValue type
-  , readFileKeyValue
+  , createFileKeyValue , readFileKeyValue , updateFileKeyValue , destroyFileKeyValue
     -- ** Group type
-  , readGroup
+  , createGroup , readGroup , updateGroup , destroyGroup
     -- ** Institution type
-  , readInstitution
+  , createInstitution , readInstitution , updateInstitution , destroyInstitution
     -- ** InstitutionPerson type
-  , readInstitutionPerson
+  , createInstitutionPerson , readInstitutionPerson , updateInstitutionPerson , destroyInstitutionPerson
     -- ** Instrument type
-  , readInstrument
+  , createInstrument , readInstrument , updateInstrument , destroyInstrument
     -- ** InstrumentCustodian type
-  , readInstrumentCustodian
+  , createInstrumentCustodian , readInstrumentCustodian , updateInstrumentCustodian , destroyInstrumentCustodian
     -- ** InstrumentGroup type
-  , readInstrumentGroup
+  , createInstrumentGroup , readInstrumentGroup , updateInstrumentGroup , destroyInstrumentGroup
     -- ** Journal type
-  , readJournal
+  , createJournal , readJournal , updateJournal , destroyJournal
     -- ** Key type
-  , readKey
+  , createKey , readKey , updateKey , destroyKey
     -- ** Keyword type
-  , readKeyword
+  , createKeyword , readKeyword , updateKeyword , destroyKeyword
     -- ** Proposal type
-  , readProposal
+  , createProposal , readProposal , updateProposal , destroyProposal
     -- ** ProposalInstrument type
-  , readProposalInstrument
+  , createProposalInstrument , readProposalInstrument , updateProposalInstrument , destroyProposalInstrument
     -- ** ProposalParticipant type
-  , readProposalParticipant
+  , createProposalParticipant , readProposalParticipant , updateProposalParticipant , destroyProposalParticipant
     -- ** Transaction type
-  , readTransaction
+  , createTransaction , readTransaction , updateTransaction , destroyTransaction
     -- ** TransactionKeyValue type
-  , readTransactionKeyValue
+  , createTransactionKeyValue , readTransactionKeyValue , updateTransactionKeyValue , destroyTransactionKeyValue
     -- ** User type
-  , readUser , readUser'
+  , createUser , readUser , readUser' , updateUser , destroyUser
     -- ** UserGroup type
-  , readUserGroup
+  , createUserGroup , readUserGroup , updateUserGroup , destroyUserGroup
     -- ** Value type
-  , readValue
+  , createValue , readValue , updateValue , destroyValue
   ) where
 
 import           Data.Aeson (FromJSON(), ToJSON())
@@ -144,21 +144,11 @@ readAnalyticalTool
 updateAnalyticalTool
   :: ()
   => Maybe AnalyticalToolId -- ^ _id
-  -> Maybe Text -- ^ encoding
-  -> Maybe Text -- ^ name
-  -> Maybe LocalTime -- ^ created
-  -> Maybe LocalTime -- ^ deleted
-  -> Maybe LocalTime -- ^ updated
   -> AnalyticalTool -- ^ DATA
   -> CurlClientM NoContent
 destroyAnalyticalTool
   :: ()
   => Maybe AnalyticalToolId -- ^ _id
-  -> Maybe Text -- ^ encoding
-  -> Maybe Text -- ^ name
-  -> Maybe LocalTime -- ^ created
-  -> Maybe LocalTime -- ^ deleted
-  -> Maybe LocalTime -- ^ updated
   -> CurlClientM NoContent
 (createAnalyticalTool :<|> readAnalyticalTool :<|> updateAnalyticalTool :<|> destroyAnalyticalTool) = toClient apiAnalyticalTool def
 {-# NOINLINE  createAnalyticalTool #-}
@@ -173,21 +163,6 @@ readAnalyticalTool'
 readAnalyticalTool' analyticalToolId = safeHead <$> readAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalTool' #-}
 
-updateAnalyticalTool'
-  :: ()
-  => AnalyticalToolId -- ^ _id
-  -> AnalyticalTool -- ^ DATA
-  -> CurlClientM NoContent
-updateAnalyticalTool' analyticalToolId = updateAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing
-{-# INLINE  updateAnalyticalTool' #-}
-
-destroyAnalyticalTool'
-  :: ()
-  => AnalyticalToolId -- ^ _id
-  -> CurlClientM NoContent
-destroyAnalyticalTool' analyticalToolId = destroyAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing
-{-# INLINE  destroyAnalyticalTool' #-}
-
 createAnalyticalToolProposal :<|> readAnalyticalToolProposal :<|> updateAnalyticalToolProposal :<|> destroyAnalyticalToolProposal = toClient apiAnalyticalToolProposal def
 {-# NOINLINE  createAnalyticalToolProposal #-}
 {-# NOINLINE  readAnalyticalToolProposal #-}
@@ -200,68 +175,131 @@ createAnalyticalToolTransaction :<|> readAnalyticalToolTransaction :<|> updateAn
 {-# NOINLINE  updateAnalyticalToolTransaction #-}
 {-# NOINLINE  destroyAnalyticalToolTransaction #-}
 
-readCitation = toClient apiCitation def
+createCitation :<|> readCitation :<|> updateCitation :<|> destroyCitation = toClient apiCitation def
+{-# NOINLINE  createCitation #-}
 {-# NOINLINE  readCitation #-}
+{-# NOINLINE  updateCitation #-}
+{-# NOINLINE  destroyCitation #-}
 
-readCitationContributor = toClient apiCitationContributor def
+createCitationContributor :<|> readCitationContributor :<|> updateCitationContributor :<|> destroyCitationContributor = toClient apiCitationContributor def
+{-# NOINLINE  createCitationContributor #-}
 {-# NOINLINE  readCitationContributor #-}
+{-# NOINLINE  updateCitationContributor #-}
+{-# NOINLINE  destroyCitationContributor #-}
 
-readCitationKeyword = toClient apiCitationKeyword def
+createCitationKeyword :<|> readCitationKeyword :<|> updateCitationKeyword :<|> destroyCitationKeyword = toClient apiCitationKeyword def
+{-# NOINLINE  createCitationKeyword #-}
 {-# NOINLINE  readCitationKeyword #-}
+{-# NOINLINE  updateCitationKeyword #-}
+{-# NOINLINE  destroyCitationKeyword #-}
 
-readCitationProposal = toClient apiCitationProposal def
+createCitationProposal :<|>readCitationProposal :<|> updateCitationProposal :<|> destroyCitationProposal = toClient apiCitationProposal def
+{-# NOINLINE  createCitationProposal #-}
 {-# NOINLINE  readCitationProposal #-}
+{-# NOINLINE  updateCitationProposal #-}
+{-# NOINLINE  destroyCitationProposal #-}
 
-readContributor = toClient apiContributor def
+createContributor :<|> readContributor :<|> updateContributor :<|> destroyContributor = toClient apiContributor def
+{-# NOINLINE  createContributor #-}
 {-# NOINLINE  readContributor #-}
+{-# NOINLINE  updateContributor #-}
+{-# NOINLINE  destroyContributor #-}
 
-readFile = toClient apiFile def
+createFile :<|> readFile :<|> updateFile :<|> destroyFile = toClient apiFile def
+{-# NOINLINE  createFile #-}
 {-# NOINLINE  readFile #-}
+{-# NOINLINE  updateFile #-}
+{-# NOINLINE  destroyFile #-}
 
-readFileKeyValue = toClient apiFileKeyValue def
+createFileKeyValue :<|> readFileKeyValue :<|> updateFileKeyValue :<|> destroyFileKeyValue = toClient apiFileKeyValue def
+{-# NOINLINE  createFileKeyValue #-}
 {-# NOINLINE  readFileKeyValue #-}
+{-# NOINLINE  updateFileKeyValue #-}
+{-# NOINLINE  destroyFileKeyValue #-}
 
-readGroup = toClient apiGroup def
+createGroup :<|> readGroup :<|> updateGroup :<|> destroyGroup = toClient apiGroup def
+{-# NOINLINE  createGroup #-}
 {-# NOINLINE  readGroup #-}
+{-# NOINLINE  updateGroup #-}
+{-# NOINLINE  destroyGroup #-}
 
-readInstitution = toClient apiInstitution def
+createInstitution :<|> readInstitution :<|> updateInstitution :<|> destroyInstitution = toClient apiInstitution def
+{-# NOINLINE  createInstitution #-}
 {-# NOINLINE  readInstitution #-}
+{-# NOINLINE  updateInstitution #-}
+{-# NOINLINE  destroyInstitution #-}
 
-readInstitutionPerson = toClient apiInstitutionPerson def
+createInstitutionPerson :<|> readInstitutionPerson :<|> updateInstitutionPerson :<|> destroyInstitutionPerson = toClient apiInstitutionPerson def
+{-# NOINLINE  createInstitutionPerson #-}
 {-# NOINLINE  readInstitutionPerson #-}
+{-# NOINLINE  updateInstitutionPerson #-}
+{-# NOINLINE  destroyInstitutionPerson #-}
 
-readInstrument = toClient apiInstrument def
+createInstrument :<|> readInstrument :<|> updateInstrument :<|> destroyInstrument = toClient apiInstrument def
+{-# NOINLINE  createInstrument #-}
 {-# NOINLINE  readInstrument #-}
+{-# NOINLINE  updateInstrument #-}
+{-# NOINLINE  destroyInstrument #-}
 
-readInstrumentCustodian = toClient apiInstrumentCustodian def
+createInstrumentCustodian :<|> readInstrumentCustodian :<|> updateInstrumentCustodian :<|> destroyInstrumentCustodian = toClient apiInstrumentCustodian def
+{-# NOINLINE  createInstrumentCustodian #-}
 {-# NOINLINE  readInstrumentCustodian #-}
+{-# NOINLINE  updateInstrumentCustodian #-}
+{-# NOINLINE  destroyInstrumentCustodian #-}
 
-readInstrumentGroup = toClient apiInstrumentGroup def
+createInstrumentGroup :<|> readInstrumentGroup :<|> updateInstrumentGroup :<|> destroyInstrumentGroup = toClient apiInstrumentGroup def
+{-# NOINLINE  createInstrumentGroup #-}
 {-# NOINLINE  readInstrumentGroup #-}
+{-# NOINLINE  updateInstrumentGroup #-}
+{-# NOINLINE  destroyInstrumentGroup #-}
 
-readJournal = toClient apiJournal def
+createJournal :<|> readJournal :<|> updateJournal :<|> destroyJournal = toClient apiJournal def
+{-# NOINLINE  createJournal #-}
 {-# NOINLINE  readJournal #-}
+{-# NOINLINE  updateJournal #-}
+{-# NOINLINE  destroyJournal #-}
 
-readKey = toClient apiKey def
+createKey :<|> readKey :<|> updateKey :<|> destroyKey = toClient apiKey def
+{-# NOINLINE  createKey #-}
 {-# NOINLINE  readKey #-}
+{-# NOINLINE  updateKey #-}
+{-# NOINLINE  destroyKey #-}
 
-readKeyword = toClient apiKeyword def
+createKeyword :<|> readKeyword :<|> updateKeyword :<|> destroyKeyword = toClient apiKeyword def
+{-# NOINLINE  createKeyword #-}
 {-# NOINLINE  readKeyword #-}
+{-# NOINLINE  updateKeyword #-}
+{-# NOINLINE  destroyKeyword #-}
 
-readProposal = toClient apiProposal def
+createProposal :<|> readProposal :<|> updateProposal :<|> destroyProposal = toClient apiProposal def
+{-# NOINLINE  createProposal #-}
 {-# NOINLINE  readProposal #-}
+{-# NOINLINE  updateProposal #-}
+{-# NOINLINE  destroyProposal #-}
 
-readProposalInstrument = toClient apiProposalInstrument def
+createProposalInstrument :<|> readProposalInstrument :<|> updateProposalInstrument :<|> destroyProposalInstrument = toClient apiProposalInstrument def
+{-# NOINLINE  createProposalInstrument #-}
 {-# NOINLINE  readProposalInstrument #-}
+{-# NOINLINE  updateProposalInstrument #-}
+{-# NOINLINE  destroyProposalInstrument #-}
 
-readProposalParticipant = toClient apiProposalParticipant def
+createProposalParticipant :<|> readProposalParticipant :<|> updateProposalParticipant :<|> destroyProposalParticipant = toClient apiProposalParticipant def
+{-# NOINLINE  createProposalParticipant #-}
 {-# NOINLINE  readProposalParticipant #-}
+{-# NOINLINE  updateProposalParticipant #-}
+{-# NOINLINE  destroyProposalParticipant #-}
 
-readTransaction = toClient apiTransaction def
+createTransaction :<|> readTransaction :<|> updateTransaction :<|> destroyTransaction = toClient apiTransaction def
+{-# NOINLINE  createTransaction #-}
 {-# NOINLINE  readTransaction #-}
+{-# NOINLINE  updateTransaction #-}
+{-# NOINLINE  destroyTransaction #-}
 
-readTransactionKeyValue = toClient apiTransactionKeyValue def
+createTransactionKeyValue :<|> readTransactionKeyValue :<|> updateTransactionKeyValue :<|> destroyTransactionKeyValue = toClient apiTransactionKeyValue def
+{-# NOINLINE  createTransactionKeyValue #-}
 {-# NOINLINE  readTransactionKeyValue #-}
+{-# NOINLINE  updateTransactionKeyValue #-}
+{-# NOINLINE  destroyTransactionKeyValue #-}
 
 readUser
   :: ()
@@ -274,22 +312,33 @@ readUser
   -> Maybe LocalTime -- ^ created
   -> Maybe LocalTime -- ^ deleted
   -> Maybe LocalTime -- ^ updated
+  -> Maybe Int -- ^ items_per_page
+  -> Maybe Int -- ^ per_page
   -> CurlClientM [User]
-readUser = toClient apiUser def
+createUser :<|> readUser :<|> updateUser :<|> destroyUser = toClient apiUser def
+{-# NOINLINE  createUser #-}
 {-# NOINLINE  readUser #-}
+{-# NOINLINE  updateUser #-}
+{-# NOINLINE  destroyUser #-}
 
 readUser'
   :: ()
   => UserId -- ^ _id
   -> CurlClientM (Maybe User)
-readUser' userId = safeHead <$> readUser (Just userId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+readUser' userId = safeHead <$> readUser (Just userId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readUser' #-}
 
-readUserGroup = toClient apiUserGroup def
+createUserGroup :<|> readUserGroup :<|> updateUserGroup :<|> destroyUserGroup = toClient apiUserGroup def
+{-# NOINLINE  createUserGroup #-}
 {-# NOINLINE  readUserGroup #-}
+{-# NOINLINE  updateUserGroup #-}
+{-# NOINLINE  destroyUserGroup #-}
 
-readValue = toClient apiValue def
+createValue :<|> readValue :<|> updateValue :<|> destroyValue = toClient apiValue def
+{-# NOINLINE  createValue #-}
 {-# NOINLINE  readValue #-}
+{-# NOINLINE  updateValue #-}
+{-# NOINLINE  destroyValue #-}
 
 -- | A link to an endpoint that is described by a Servant API type.
 --
