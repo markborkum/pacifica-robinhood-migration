@@ -44,9 +44,9 @@ module Pacifica.Metadata.API.Curl
     -- ** AnalyticalTool type
     createAnalyticalTool , readAnalyticalTool , readAnalyticalTool' , updateAnalyticalTool , destroyAnalyticalTool
     -- ** AnalyticalToolProposal type
-  , createAnalyticalToolProposal , readAnalyticalToolProposal , updateAnalyticalToolProposal , destroyAnalyticalToolProposal
+  , createAnalyticalToolProposal , readAnalyticalToolProposal , readAnalyticalToolProposal' , updateAnalyticalToolProposal , destroyAnalyticalToolProposal
     -- ** AnalyticalToolTransaction type
-  , createAnalyticalToolTransaction , readAnalyticalToolTransaction , updateAnalyticalToolTransaction , destroyAnalyticalToolTransaction
+  , createAnalyticalToolTransaction , readAnalyticalToolTransaction , readAnalyticalToolTransaction' , updateAnalyticalToolTransaction , destroyAnalyticalToolTransaction
     -- ** Citation type
   , createCitation , readCitation , updateCitation , destroyCitation
     -- ** CitationContributor type
@@ -163,17 +163,79 @@ readAnalyticalTool'
 readAnalyticalTool' analyticalToolId = safeHead <$> readAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalTool' #-}
 
+createAnalyticalToolProposal
+  :: ()
+  => AnalyticalToolProposal -- ^ DATA
+  -> CurlClientM NoContent
+readAnalyticalToolProposal
+  :: ()
+  => Maybe AnalyticalToolProposalId -- ^ _id
+  -> Maybe AnalyticalToolId -- ^ analytic_tool
+  -> Maybe ProposalId -- ^ proposal
+  -> Maybe LocalTime -- ^ created
+  -> Maybe LocalTime -- ^ deleted
+  -> Maybe LocalTime -- ^ updated
+  -> Maybe Int -- ^ items_per_page
+  -> Maybe Int -- ^ page_number
+  -> CurlClientM [AnalyticalToolProposal]
+updateAnalyticalToolProposal
+  :: ()
+  => Maybe AnalyticalToolProposalId -- ^ _id
+  -> AnalyticalToolProposal -- ^ DATA
+  -> CurlClientM NoContent
+destroyAnalyticalToolProposal
+  :: ()
+  => Maybe AnalyticalToolProposalId -- ^ _id
+  -> CurlClientM NoContent
 createAnalyticalToolProposal :<|> readAnalyticalToolProposal :<|> updateAnalyticalToolProposal :<|> destroyAnalyticalToolProposal = toClient apiAnalyticalToolProposal def
 {-# NOINLINE  createAnalyticalToolProposal #-}
 {-# NOINLINE  readAnalyticalToolProposal #-}
 {-# NOINLINE  updateAnalyticalToolProposal #-}
 {-# NOINLINE  destroyAnalyticalToolProposal #-}
 
+readAnalyticalToolProposal'
+  :: ()
+  => AnalyticalToolProposalId -- ^ _id
+  -> CurlClientM (Maybe AnalyticalToolProposal)
+readAnalyticalToolProposal' analyticalToolProposalId = safeHead <$> readAnalyticalToolProposal (Just analyticalToolProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+{-# INLINE  readAnalyticalToolProposal' #-}
+
+createAnalyticalToolTransaction
+  :: ()
+  => AnalyticalToolTransaction -- ^ DATA
+  -> CurlClientM NoContent
+readAnalyticalToolTransaction
+  :: ()
+  => Maybe AnalyticalToolTransactionId -- ^ _id
+  -> Maybe AnalyticalToolId -- ^ analytic_tool
+  -> Maybe TransactionId -- ^ transaction
+  -> Maybe LocalTime -- ^ created
+  -> Maybe LocalTime -- ^ deleted
+  -> Maybe LocalTime -- ^ updated
+  -> Maybe Int -- ^ items_per_page
+  -> Maybe Int -- ^ page_number
+  -> CurlClientM [AnalyticalToolTransaction]
+updateAnalyticalToolTransaction
+  :: ()
+  => Maybe AnalyticalToolTransactionId -- ^ _id
+  -> AnalyticalToolTransaction -- ^ DATA
+  -> CurlClientM NoContent
+destroyAnalyticalToolTransaction
+  :: ()
+  => Maybe AnalyticalToolTransactionId -- ^ _id
+  -> CurlClientM NoContent
 createAnalyticalToolTransaction :<|> readAnalyticalToolTransaction :<|> updateAnalyticalToolTransaction :<|> destroyAnalyticalToolTransaction = toClient apiAnalyticalToolTransaction def
 {-# NOINLINE  createAnalyticalToolTransaction #-}
 {-# NOINLINE  readAnalyticalToolTransaction #-}
 {-# NOINLINE  updateAnalyticalToolTransaction #-}
 {-# NOINLINE  destroyAnalyticalToolTransaction #-}
+
+readAnalyticalToolTransaction'
+  :: ()
+  => AnalyticalToolTransactionId -- ^ _id
+  -> CurlClientM (Maybe AnalyticalToolTransaction)
+readAnalyticalToolTransaction' analyticalToolTransactionId = safeHead <$> readAnalyticalToolTransaction (Just analyticalToolTransactionId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+{-# INLINE  readAnalyticalToolTransaction' #-}
 
 createCitation :<|> readCitation :<|> updateCitation :<|> destroyCitation = toClient apiCitation def
 {-# NOINLINE  createCitation #-}
