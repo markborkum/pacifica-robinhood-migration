@@ -41,6 +41,7 @@ packages:
 - 'pacifica-metadata-servant'
 - 'pacifica-metadata-servant-curl-client'
 - 'robinhood'
+- 'robinhood-extras'
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)

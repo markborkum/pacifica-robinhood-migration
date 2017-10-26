@@ -31,3 +31,5 @@ script:
     - stack --no-terminal --skip-ghc-check test pacifica-metadata-servant-curl-client:test:pacifica-metadata-servant-curl-client-test --coverage
     - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --haddock --no-haddock-deps
     - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --coverage
+    - stack --no-terminal --skip-ghc-check test robinhood-extras:test:robinhood-extras-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test robinhood-extras:test:robinhood-extras-test --coverage
