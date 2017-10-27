@@ -363,6 +363,10 @@ createTransactionKeyValue :<|> readTransactionKeyValue :<|> updateTransactionKey
 {-# NOINLINE  updateTransactionKeyValue #-}
 {-# NOINLINE  destroyTransactionKeyValue #-}
 
+createUser
+  :: ()
+  => User -- ^ DATA
+  -> CurlClientM NoContent
 readUser
   :: ()
   => Maybe UserId -- ^ _id
@@ -377,6 +381,15 @@ readUser
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ per_page
   -> CurlClientM [User]
+updateUser
+  :: ()
+  => Maybe UserId -- ^ _id
+  -> User -- ^ DATA
+  -> CurlClientM NoContent
+destroyUser
+  :: ()
+  => Maybe UserId -- ^ _id
+  -> CurlClientM NoContent
 createUser :<|> readUser :<|> updateUser :<|> destroyUser = toClient apiUser def
 {-# NOINLINE  createUser #-}
 {-# NOINLINE  readUser #-}
