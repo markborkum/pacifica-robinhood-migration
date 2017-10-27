@@ -105,5 +105,6 @@ individually and each combination of aspects, along with a "master" percentage
 for each data source (as a whole).
 
 * **Data location report:**
+
 The output of the system will be used to generate a machine-readable manifest of
 matched data objects and their locations.
