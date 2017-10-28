@@ -60,6 +60,7 @@ data CurlClientEnv = CurlClientEnv CurlCmdSpec URLType
 data CurlClientErr
   = CurlClientDecodeFailed String
   | CurlClientNonZeroExitCode ByteString Int
+  | CurlClientInvalidStatusCode ByteString Integer
   deriving (Eq, Ord, Read, Show)
 
 -- | A cURL command specification.
@@ -78,15 +79,17 @@ data CurlRequest a = CurlRequest
   , _curlRequestMethod :: Maybe StdMethod
   , _curlRequestMkURL :: URLType -> URL
   , _curlRequestDecode :: ByteString -> Either String a
+  , _curlRequestStatusCode :: Integer
   }
 
 -- | Construct a new cURL client whose monadic computation yields the result of sending the given request and decoding the response.
 --
 fromCurlRequest :: CurlRequest a -> CurlClientM a
-fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode }) = CurlClientM $ do
+fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode , _curlRequestStatusCode = _statusCode }) = CurlClientM $ do
   cp <- asks $ \(CurlClientEnv (CurlCmdSpec spec0) url_type0) -> case setCurlRequestURL (mkURL url_type0) $ maybe id setCurlRequestBody std_in_Maybe $ maybe id setCurlRequestMethod stdMethodMaybe $ spec0 of
     ShellCommand cmd_args -> System.Process.shell cmd_args
     RawCommand cmd args -> System.Process.proc cmd args
+  -- liftIO $ System.IO.hPutStrLn System.IO.stderr $ show $ System.Process.cmdspec cp
   (h_std_in_Maybe, Just h_std_out, Just h_std_err, h_proc) <- liftIO $ System.Process.createProcess cp
     { System.Process.std_in = maybe NoStream (const CreatePipe) std_in_Maybe
     , System.Process.std_out = CreatePipe

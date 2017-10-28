@@ -24,22 +24,22 @@ import           Web.Internal.HttpApiData (FromHttpApiData(), ToHttpApiData())
 newtype AnalyticalToolId = AnalyticalToolId { getAnalyticalToolId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype AnalyticalToolProposalId = AnalyticalToolProposalId { getAnalyticalToolProposalId :: Int }
+newtype AnalyticalToolProposalId = AnalyticalToolProposalId { getAnalyticalToolProposalId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype AnalyticalToolTransactionId = AnalyticalToolTransactionId { getAnalyticalToolTransactionId :: Int }
+newtype AnalyticalToolTransactionId = AnalyticalToolTransactionId { getAnalyticalToolTransactionId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype CitationId = CitationId { getCitationId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype CitationContributorId = CitationContributorId { getCitationContributorId :: Int }
+newtype CitationContributorId = CitationContributorId { getCitationContributorId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype CitationKeywordId = CitationKeywordId { getCitationKeywordId :: Int }
+newtype CitationKeywordId = CitationKeywordId { getCitationKeywordId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype CitationProposalId = CitationProposalId { getCitationProposalId :: Int }
+newtype CitationProposalId = CitationProposalId { getCitationProposalId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype ContributorId = ContributorId { getContributorId :: Int }
@@ -48,7 +48,7 @@ newtype ContributorId = ContributorId { getContributorId :: Int }
 newtype FileId = FileId { getFileId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype FileKeyValueId = FileKeyValueId { getFileKeyValueId :: Int }
+newtype FileKeyValueId = FileKeyValueId { getFileKeyValueId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype GroupId = GroupId { getGroupId :: Int }
@@ -57,16 +57,16 @@ newtype GroupId = GroupId { getGroupId :: Int }
 newtype InstitutionId = InstitutionId { getInstitutionId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype InstitutionPersonId = InstitutionPersonId { getInstitutionPersonId :: Int }
+newtype InstitutionPersonId = InstitutionPersonId { getInstitutionPersonId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype InstrumentId = InstrumentId { getInstrumentId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype InstrumentCustodianId = InstrumentCustodianId { getInstrumentCustodianId :: Int }
+newtype InstrumentCustodianId = InstrumentCustodianId { getInstrumentCustodianId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype InstrumentGroupId = InstrumentGroupId { getInstrumentGroupId :: Int }
+newtype InstrumentGroupId = InstrumentGroupId { getInstrumentGroupId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype JournalId = JournalId { getJournalId :: Int }
@@ -84,10 +84,10 @@ newtype NetworkId = NetworkId { getNetworkId :: Text }
 newtype ProposalId = ProposalId { getProposalId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype ProposalInstrumentId = ProposalInstrumentId { getProposalInstrumentId :: Int }
+newtype ProposalInstrumentId = ProposalInstrumentId { getProposalInstrumentId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype ProposalParticipantId = ProposalParticipantId { getProposalParticipantId :: Int }
+newtype ProposalParticipantId = ProposalParticipantId { getProposalParticipantId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype ReleaseAuthorizationId = ReleaseAuthorizationId { getReleaseAuthorizationId :: Text }
@@ -96,13 +96,13 @@ newtype ReleaseAuthorizationId = ReleaseAuthorizationId { getReleaseAuthorizatio
 newtype TransactionId = TransactionId { getTransactionId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype TransactionKeyValueId = TransactionKeyValueId { getTransactionKeyValueId :: Int }
+newtype TransactionKeyValueId = TransactionKeyValueId { getTransactionKeyValueId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype UserId = UserId { getUserId :: Int }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
-newtype UserGroupId = UserGroupId { getUserGroupId :: Int }
+newtype UserGroupId = UserGroupId { getUserGroupId :: Text }
   deriving (Eq, Ord, Read, Show, FromJSON, ToJSON, FromHttpApiData, ToHttpApiData)
 
 newtype ValueId = ValueId { getValueId :: Int }
@@ -140,8 +140,8 @@ instance ToJSON AnalyticalTool where
 
 data AnalyticalToolProposal = AnalyticalToolProposal
   { _analyticalToolProposalId :: AnalyticalToolProposalId
-  , _analyticalToolProposalAnalyticalTool :: AnalyticalToolId
-  , _analyticalToolProposalProposal :: ProposalId
+  , _analyticalToolProposalAnalyticalToolId :: AnalyticalToolId
+  , _analyticalToolProposalProposalId :: ProposalId
   , _analyticalToolProposalCreated :: LocalTime
   , _analyticalToolProposalDeleted :: Maybe LocalTime
   , _analyticalToolProposalUpdated :: LocalTime
@@ -159,19 +159,19 @@ instance FromJSON AnalyticalToolProposal where
 
 instance ToJSON AnalyticalToolProposal where
   toJSON AnalyticalToolProposal{..} = Data.Aeson.object
-    [ "_id"             .= _analyticalToolProposalId
-    , "analytical_tool" .= _analyticalToolProposalAnalyticalTool
-    , "proposal"        .= _analyticalToolProposalProposal
-    , "created"         .= _analyticalToolProposalCreated
-    , "deleted"         .= _analyticalToolProposalDeleted
-    , "updated"         .= _analyticalToolProposalUpdated
+    [ "_id"                .= _analyticalToolProposalId
+    , "analytical_tool_id" .= _analyticalToolProposalAnalyticalToolId
+    , "proposal_id"        .= _analyticalToolProposalProposalId
+    , "created"            .= _analyticalToolProposalCreated
+    , "deleted"            .= _analyticalToolProposalDeleted
+    , "updated"            .= _analyticalToolProposalUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data AnalyticalToolTransaction = AnalyticalToolTransaction
   { _analyticalToolTransactionId :: AnalyticalToolTransactionId
-  , _analyticalToolTransactionAnalyticalTool :: AnalyticalToolId
-  , _analyticalToolTransactionTransaction :: TransactionId
+  , _analyticalToolTransactionAnalyticalToolId :: AnalyticalToolId
+  , _analyticalToolTransactionTransactionId :: TransactionId
   , _analyticalToolTransactionCreated :: LocalTime
   , _analyticalToolTransactionDeleted :: Maybe LocalTime
   , _analyticalToolTransactionUpdated :: LocalTime
@@ -189,12 +189,12 @@ instance FromJSON AnalyticalToolTransaction where
 
 instance ToJSON AnalyticalToolTransaction where
   toJSON AnalyticalToolTransaction{..} = Data.Aeson.object
-    [ "_id"             .= _analyticalToolTransactionId
-    , "analytical_tool" .= _analyticalToolTransactionAnalyticalTool
-    , "transaction"     .= _analyticalToolTransactionTransaction
-    , "created"         .= _analyticalToolTransactionCreated
-    , "deleted"         .= _analyticalToolTransactionDeleted
-    , "updated"         .= _analyticalToolTransactionUpdated
+    [ "_id"                .= _analyticalToolTransactionId
+    , "analytical_tool_id" .= _analyticalToolTransactionAnalyticalToolId
+    , "transaction_id"     .= _analyticalToolTransactionTransactionId
+    , "created"            .= _analyticalToolTransactionCreated
+    , "deleted"            .= _analyticalToolTransactionDeleted
+    , "updated"            .= _analyticalToolTransactionUpdated
     ]
   {-# INLINE  toJSON #-}
 
@@ -204,7 +204,7 @@ data Citation = Citation
   , _citationArticleTitle :: Text
   , _citationDOIReference :: Text
   , _citationEncoding :: Text
-  , _citationJournal :: JournalId
+  , _citationJournalId :: JournalId
   , _citationJournalIssue :: Int
   , _citationJournalVolume :: Int
   , _citationPageRange :: Text
@@ -222,7 +222,7 @@ instance FromJSON Citation where
     <*> v .: "article_title"
     <*> v .: "doi_reference"
     <*> v .: "encoding"
-    <*> v .: "journal"
+    <*> v .: "journal_id"
     <*> v .: "journal_issue"
     <*> v .: "journal_volume"
     <*> v .: "page_range"
@@ -240,7 +240,7 @@ instance ToJSON Citation where
     , "article_title"            .= _citationArticleTitle
     , "doi_reference"            .= _citationDOIReference
     , "encoding"                 .= _citationEncoding
-    , "journal"                  .= _citationJournal
+    , "journal_id"               .= _citationJournalId
     , "journal_issue"            .= _citationJournalIssue
     , "journal_volume"           .= _citationJournalVolume
     , "page_range"               .= _citationPageRange
@@ -254,9 +254,9 @@ instance ToJSON Citation where
 
 data CitationContributor = CitationContributor
   { _citationContributorId :: CitationContributorId
-  , _citationContributorAuthor :: ContributorId
+  , _citationContributorAuthorId :: ContributorId
   , _citationContributorAuthorPrecedence :: Int
-  , _citationContributorCitation :: CitationId
+  , _citationContributorCitationId :: CitationId
   , _citationContributorCreated :: LocalTime
   , _citationContributorDeleted :: Maybe LocalTime
   , _citationContributorUpdated :: LocalTime
@@ -265,9 +265,9 @@ data CitationContributor = CitationContributor
 instance FromJSON CitationContributor where
   parseJSON = Data.Aeson.withObject "CitationContributor" $ \v -> pure CitationContributor
     <*> v .: "_id"
-    <*> v .: "author"
+    <*> v .: "author_id"
     <*> v .: "author_precedence"
-    <*> v .: "citation"
+    <*> v .: "citation_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -276,9 +276,9 @@ instance FromJSON CitationContributor where
 instance ToJSON CitationContributor where
   toJSON CitationContributor{..} = Data.Aeson.object
     [ "_id"               .= _citationContributorId
-    , "author"            .= _citationContributorAuthor
+    , "author_id"         .= _citationContributorAuthorId
     , "author_precedence" .= _citationContributorAuthorPrecedence
-    , "citation"          .= _citationContributorCitation
+    , "citation_id"       .= _citationContributorCitationId
     , "created"           .= _citationContributorCreated
     , "deleted"           .= _citationContributorDeleted
     , "updated"           .= _citationContributorUpdated
@@ -287,8 +287,8 @@ instance ToJSON CitationContributor where
 
 data CitationKeyword = CitationKeyword
   { _citationKeywordId :: CitationKeywordId
-  , _citationKeywordCitation :: CitationId
-  , _citationKeywordKeyword :: KeywordId
+  , _citationKeywordCitationId :: CitationId
+  , _citationKeywordKeywordId :: KeywordId
   , _citationKeywordCreated :: LocalTime
   , _citationKeywordDeleted :: Maybe LocalTime
   , _citationKeywordUpdated :: LocalTime
@@ -297,8 +297,8 @@ data CitationKeyword = CitationKeyword
 instance FromJSON CitationKeyword where
   parseJSON = Data.Aeson.withObject "CitationKeyword" $ \v -> pure CitationKeyword
     <*> v .: "_id"
-    <*> v .: "citation"
-    <*> v .: "keyword"
+    <*> v .: "citation_id"
+    <*> v .: "keyword_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -306,19 +306,19 @@ instance FromJSON CitationKeyword where
 
 instance ToJSON CitationKeyword where
   toJSON CitationKeyword{..} = Data.Aeson.object
-    [ "_id"      .= _citationKeywordId
-    , "citation" .= _citationKeywordCitation
-    , "keyword"  .= _citationKeywordKeyword
-    , "created"  .= _citationKeywordCreated
-    , "deleted"  .= _citationKeywordDeleted
-    , "updated"  .= _citationKeywordUpdated
+    [ "_id"         .= _citationKeywordId
+    , "citation_id" .= _citationKeywordCitationId
+    , "keyword_id"  .= _citationKeywordKeywordId
+    , "created"     .= _citationKeywordCreated
+    , "deleted"     .= _citationKeywordDeleted
+    , "updated"     .= _citationKeywordUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data CitationProposal = CitationProposal
   { _citationProposalId :: CitationProposalId
-  , _citationProposalCitation :: CitationId
-  , _citationProposalProposal :: ProposalId
+  , _citationProposalCitationId :: CitationId
+  , _citationProposalProposalId :: ProposalId
   , _citationProposalCreated :: LocalTime
   , _citationProposalDeleted :: Maybe LocalTime
   , _citationProposalUpdated :: LocalTime
@@ -327,8 +327,8 @@ data CitationProposal = CitationProposal
 instance FromJSON CitationProposal where
   parseJSON = Data.Aeson.withObject "CitationProposal" $ \v -> pure CitationProposal
     <*> v .: "_id"
-    <*> v .: "citation"
-    <*> v .: "proposal"
+    <*> v .: "citation_id"
+    <*> v .: "proposal_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -336,12 +336,12 @@ instance FromJSON CitationProposal where
 
 instance ToJSON CitationProposal where
   toJSON CitationProposal{..} = Data.Aeson.object
-    [ "_id"      .= _citationProposalId
-    , "citation" .= _citationProposalCitation
-    , "proposal" .= _citationProposalProposal
-    , "created"  .= _citationProposalCreated
-    , "deleted"  .= _citationProposalDeleted
-    , "updated"  .= _citationProposalUpdated
+    [ "_id"         .= _citationProposalId
+    , "citation_id" .= _citationProposalCitationId
+    , "proposal_id" .= _citationProposalProposalId
+    , "created"     .= _citationProposalCreated
+    , "deleted"     .= _citationProposalDeleted
+    , "updated"     .= _citationProposalUpdated
     ]
   {-# INLINE  toJSON #-}
 
@@ -350,10 +350,10 @@ data Contributor = Contributor
   , _contributorDeptCode :: Text
   , _contributorEncoding :: Text
   , _contributorFirstName :: Text
-  , _contributorInstitution :: InstitutionId
+  , _contributorInstitutionId :: InstitutionId
   , _contributorLastName :: Text
   , _contributorMiddleInitial :: Text
-  , _contributorPerson :: UserId
+  , _contributorPersonId :: UserId
   , _contributorCreated :: LocalTime
   , _contributorDeleted :: Maybe LocalTime
   , _contributorUpdated :: LocalTime
@@ -365,10 +365,10 @@ instance FromJSON Contributor where
     <*> v .: "dept_code"
     <*> v .: "encoding"
     <*> v .: "first_name"
-    <*> v .: "institution"
+    <*> v .: "institution_id"
     <*> v .: "last_name"
     <*> v .: "middle_initial"
-    <*> v .: "person"
+    <*> v .: "person_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -380,10 +380,10 @@ instance ToJSON Contributor where
     , "dept_code"      .= _contributorDeptCode
     , "encoding"       .= _contributorEncoding
     , "first_name"     .= _contributorFirstName
-    , "institution"    .= _contributorInstitution
+    , "institution_id" .= _contributorInstitutionId
     , "last_name"      .= _contributorLastName
     , "middle_initial" .= _contributorMiddleInitial
-    , "person"         .= _contributorPerson
+    , "person_id"      .= _contributorPersonId
     , "created"        .= _contributorCreated
     , "deleted"        .= _contributorDeleted
     , "updated"        .= _contributorUpdated
@@ -401,7 +401,7 @@ data File = File
   , _fileName :: Text
   , _fileSize :: Int
   , _fileSubDirectory :: Text
-  , _fileTransaction :: TransactionId
+  , _fileTransactionId :: TransactionId
   , _fileCreated :: LocalTime
   , _fileDeleted :: Maybe LocalTime
   , _fileUpdated :: LocalTime
@@ -419,7 +419,7 @@ instance FromJSON File where
     <*> v .: "name"
     <*> v .: "size"
     <*> v .: "subdir"
-    <*> v .: "transaction"
+    <*> v .: "transaction_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -427,28 +427,28 @@ instance FromJSON File where
 
 instance ToJSON File where
   toJSON File{..} = Data.Aeson.object
-    [ "_id"         .= _fileId
-    , "ctime"       .= _fileChangeTime
-    , "encoding"    .= _fileEncoding
-    , "hashsum"     .= _fileHashSum
-    , "hashtype"    .= _fileHashType
-    , "mimetype"    .= _fileMIMEType
-    , "mtime"       .= _fileModificationTime
-    , "name"        .= _fileName
-    , "size"        .= _fileSize
-    , "subdir"      .= _fileSubDirectory
-    , "transaction" .= _fileTransaction
-    , "created"     .= _fileCreated
-    , "deleted"     .= _fileDeleted
-    , "updated"     .= _fileUpdated
+    [ "_id"            .= _fileId
+    , "ctime"          .= _fileChangeTime
+    , "encoding"       .= _fileEncoding
+    , "hashsum"        .= _fileHashSum
+    , "hashtype"       .= _fileHashType
+    , "mimetype"       .= _fileMIMEType
+    , "mtime"          .= _fileModificationTime
+    , "name"           .= _fileName
+    , "size"           .= _fileSize
+    , "subdir"         .= _fileSubDirectory
+    , "transaction_id" .= _fileTransactionId
+    , "created"        .= _fileCreated
+    , "deleted"        .= _fileDeleted
+    , "updated"        .= _fileUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data FileKeyValue = FileKeyValue
   { _fileKeyValueId :: FileKeyValueId
-  , _fileKeyValueFile :: FileId
-  , _fileKeyValueKey :: KeyId
-  , _fileKeyValueValue :: ValueId
+  , _fileKeyValueFileId :: FileId
+  , _fileKeyValueKeyId :: KeyId
+  , _fileKeyValueValueId :: ValueId
   , _fileKeyValueCreated :: LocalTime
   , _fileKeyValueDeleted :: Maybe LocalTime
   , _fileKeyValueUpdated :: LocalTime
@@ -457,9 +457,9 @@ data FileKeyValue = FileKeyValue
 instance FromJSON FileKeyValue where
   parseJSON = Data.Aeson.withObject "FileKeyValue" $ \v -> pure FileKeyValue
     <*> v .: "_id"
-    <*> v .: "file"
-    <*> v .: "key"
-    <*> v .: "value"
+    <*> v .: "file_id"
+    <*> v .: "key_id"
+    <*> v .: "value_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -467,13 +467,13 @@ instance FromJSON FileKeyValue where
 
 instance ToJSON FileKeyValue where
   toJSON FileKeyValue{..} = Data.Aeson.object
-    [ "_id"     .= _fileKeyValueId
-    , "file"    .= _fileKeyValueFile
-    , "key"     .= _fileKeyValueKey
-    , "value"   .= _fileKeyValueValue
-    , "created" .= _fileKeyValueCreated
-    , "deleted" .= _fileKeyValueDeleted
-    , "updated" .= _fileKeyValueUpdated
+    [ "_id"      .= _fileKeyValueId
+    , "file_id"  .= _fileKeyValueFileId
+    , "key_id"   .= _fileKeyValueKeyId
+    , "value_id" .= _fileKeyValueValueId
+    , "created"  .= _fileKeyValueCreated
+    , "deleted"  .= _fileKeyValueDeleted
+    , "updated"  .= _fileKeyValueUpdated
     ]
   {-# INLINE  toJSON #-}
 
@@ -548,8 +548,8 @@ instance ToJSON Institution where
 
 data InstitutionPerson = InstitutionPerson
   { _institutionPersonId :: InstitutionPersonId
-  , _institutionPersonInstitution :: InstitutionId
-  , _institutionPersonPerson :: UserId
+  , _institutionPersonInstitutionId :: InstitutionId
+  , _institutionPersonPersonId :: UserId
   , _institutionPersonCreated :: LocalTime
   , _institutionPersonDeleted :: Maybe LocalTime
   , _institutionPersonUpdated :: LocalTime
@@ -558,8 +558,8 @@ data InstitutionPerson = InstitutionPerson
 instance FromJSON InstitutionPerson where
   parseJSON = Data.Aeson.withObject "InstitutionPerson" $ \v -> pure InstitutionPerson
     <*> v .: "_id"
-    <*> v .: "institution"
-    <*> v .: "person"
+    <*> v .: "institution_id"
+    <*> v .: "person_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -567,12 +567,12 @@ instance FromJSON InstitutionPerson where
 
 instance ToJSON InstitutionPerson where
   toJSON InstitutionPerson{..} = Data.Aeson.object
-    [ "_id"         .= _institutionPersonId
-    , "institution" .= _institutionPersonInstitution
-    , "person"      .= _institutionPersonPerson
-    , "created"     .= _institutionPersonCreated
-    , "updated"     .= _institutionPersonUpdated
-    , "deleted"     .= _institutionPersonDeleted
+    [ "_id"            .= _institutionPersonId
+    , "institution_id" .= _institutionPersonInstitutionId
+    , "person_id"      .= _institutionPersonPersonId
+    , "created"        .= _institutionPersonCreated
+    , "updated"        .= _institutionPersonUpdated
+    , "deleted"        .= _institutionPersonDeleted
     ]
   {-# INLINE  toJSON #-}
 
@@ -617,8 +617,8 @@ instance ToJSON Instrument where
 
 data InstrumentCustodian = InstrumentCustodian
   { _instrumentCustodianId :: InstrumentCustodianId
-  , _instrumentCustodianCustodian :: UserId
-  , _instrumentCustodianInstrument :: InstrumentId
+  , _instrumentCustodianCustodianId :: UserId
+  , _instrumentCustodianInstrumentId :: InstrumentId
   , _instrumentCustodianCreated :: LocalTime
   , _instrumentCustodianDeleted :: Maybe LocalTime
   , _instrumentCustodianUpdated :: LocalTime
@@ -627,8 +627,8 @@ data InstrumentCustodian = InstrumentCustodian
 instance FromJSON InstrumentCustodian where
   parseJSON = Data.Aeson.withObject "InstrumentCustodian" $ \v -> pure InstrumentCustodian
     <*> v .: "_id"
-    <*> v .: "custodian"
-    <*> v .: "instrument"
+    <*> v .: "custodian_id"
+    <*> v .: "instrument_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -636,19 +636,19 @@ instance FromJSON InstrumentCustodian where
 
 instance ToJSON InstrumentCustodian where
   toJSON InstrumentCustodian{..} = Data.Aeson.object
-    [ "_id"        .= _instrumentCustodianId
-    , "custodian"  .= _instrumentCustodianCustodian
-    , "instrument" .= _instrumentCustodianInstrument
-    , "created"    .= _instrumentCustodianCreated
-    , "deleted"    .= _instrumentCustodianDeleted
-    , "updated"    .= _instrumentCustodianUpdated
+    [ "_id"           .= _instrumentCustodianId
+    , "custodian_id"  .= _instrumentCustodianCustodianId
+    , "instrument_id" .= _instrumentCustodianInstrumentId
+    , "created"       .= _instrumentCustodianCreated
+    , "deleted"       .= _instrumentCustodianDeleted
+    , "updated"       .= _instrumentCustodianUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data InstrumentGroup = InstrumentGroup
   { _instrumentGroupId :: InstrumentGroupId
-  , _instrumentGroupGroup :: GroupId
-  , _instrumentGroupInstrument :: InstrumentId
+  , _instrumentGroupGroupId :: GroupId
+  , _instrumentGroupInstrumentId :: InstrumentId
   , _instrumentGroupCreated :: LocalTime
   , _instrumentGroupDeleted :: Maybe LocalTime
   , _instrumentGroupUpdated :: LocalTime
@@ -657,8 +657,8 @@ data InstrumentGroup = InstrumentGroup
 instance FromJSON InstrumentGroup where
   parseJSON = Data.Aeson.withObject "InstrumentGroup" $ \v -> pure InstrumentGroup
     <*> v .: "_id"
-    <*> v .: "group"
-    <*> v .: "instrument"
+    <*> v .: "group_id"
+    <*> v .: "instrument_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -666,12 +666,12 @@ instance FromJSON InstrumentGroup where
 
 instance ToJSON InstrumentGroup where
   toJSON InstrumentGroup{..} = Data.Aeson.object
-    [ "_id"        .= _instrumentGroupId
-    , "group"      .= _instrumentGroupGroup
-    , "instrument" .= _instrumentGroupInstrument
-    , "created"    .= _instrumentGroupCreated
-    , "deleted"    .= _instrumentGroupDeleted
-    , "updated"    .= _instrumentGroupUpdated
+    [ "_id"           .= _instrumentGroupId
+    , "group_id"      .= _instrumentGroupGroupId
+    , "instrument_id" .= _instrumentGroupInstrumentId
+    , "created"       .= _instrumentGroupCreated
+    , "deleted"       .= _instrumentGroupDeleted
+    , "updated"       .= _instrumentGroupUpdated
     ]
   {-# INLINE  toJSON #-}
 
@@ -827,8 +827,8 @@ instance ToJSON Proposal where
 
 data ProposalInstrument = ProposalInstrument
   { _proposalInstrumentId :: ProposalInstrumentId
-  , _proposalInstrumentInstrument :: InstrumentId
-  , _proposalInstrumentProposal :: ProposalId
+  , _proposalInstrumentInstrumentId :: InstrumentId
+  , _proposalInstrumentProposalId :: ProposalId
   , _proposalInstrumentCreated :: LocalTime
   , _proposalInstrumentDeleted :: Maybe LocalTime
   , _proposalInstrumentUpdated :: LocalTime
@@ -837,8 +837,8 @@ data ProposalInstrument = ProposalInstrument
 instance FromJSON ProposalInstrument where
   parseJSON = Data.Aeson.withObject "ProposalInstrument" $ \v -> pure ProposalInstrument
     <*> v .: "_id"
-    <*> v .: "instrument"
-    <*> v .: "proposal"
+    <*> v .: "instrument_id"
+    <*> v .: "proposal_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -846,19 +846,19 @@ instance FromJSON ProposalInstrument where
 
 instance ToJSON ProposalInstrument where
   toJSON ProposalInstrument{..} = Data.Aeson.object
-    [ "_id"        .= _proposalInstrumentId
-    , "instrument" .= _proposalInstrumentInstrument
-    , "proposal"   .= _proposalInstrumentProposal
-    , "created"    .= _proposalInstrumentCreated
-    , "deleted"    .= _proposalInstrumentDeleted
-    , "updated"    .= _proposalInstrumentUpdated
+    [ "_id"           .= _proposalInstrumentId
+    , "instrument_id" .= _proposalInstrumentInstrumentId
+    , "proposal_id"   .= _proposalInstrumentProposalId
+    , "created"       .= _proposalInstrumentCreated
+    , "deleted"       .= _proposalInstrumentDeleted
+    , "updated"       .= _proposalInstrumentUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data ProposalParticipant = ProposalParticipant
   { _proposalParticipantId :: ProposalParticipantId
-  , _proposalParticipantPerson :: UserId
-  , _proposalParticipantProposal :: ProposalId
+  , _proposalParticipantPersonId :: UserId
+  , _proposalParticipantProposalId :: ProposalId
   , _proposalParticipantCreated :: LocalTime
   , _proposalParticipantDeleted :: Maybe LocalTime
   , _proposalParticipantUpdated :: LocalTime
@@ -867,8 +867,8 @@ data ProposalParticipant = ProposalParticipant
 instance FromJSON ProposalParticipant where
   parseJSON = Data.Aeson.withObject "ProposalParticipant" $ \v -> pure ProposalParticipant
     <*> v .: "_id"
-    <*> v .: "person"
-    <*> v .: "proposal"
+    <*> v .: "person_id"
+    <*> v .: "proposal_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -876,20 +876,20 @@ instance FromJSON ProposalParticipant where
 
 instance ToJSON ProposalParticipant where
   toJSON ProposalParticipant{..} = Data.Aeson.object
-    [ "_id"      .= _proposalParticipantId
-    , "person"   .= _proposalParticipantPerson
-    , "proposal" .= _proposalParticipantProposal
-    , "created"  .= _proposalParticipantCreated
-    , "deleted"  .= _proposalParticipantDeleted
-    , "updated"  .= _proposalParticipantUpdated
+    [ "_id"         .= _proposalParticipantId
+    , "person_id"   .= _proposalParticipantPersonId
+    , "proposal_id" .= _proposalParticipantProposalId
+    , "created"     .= _proposalParticipantCreated
+    , "deleted"     .= _proposalParticipantDeleted
+    , "updated"     .= _proposalParticipantUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data Transaction = Transaction
   { _transactionId :: TransactionId
-  , _transactionInstrument :: InstrumentId
-  , _transactionProposal :: ProposalId
-  , _transactionSubmitter :: UserId
+  , _transactionInstrumentId :: InstrumentId
+  , _transactionProposalId :: ProposalId
+  , _transactionSubmitterId :: UserId
   , _transactionCreated :: LocalTime
   , _transactionDeleted :: Maybe LocalTime
   , _transactionUpdated :: LocalTime
@@ -898,9 +898,9 @@ data Transaction = Transaction
 instance FromJSON Transaction where
   parseJSON = Data.Aeson.withObject "Transaction" $ \v -> pure Transaction
     <*> v .: "_id"
-    <*> v .: "instrument"
-    <*> v .: "proposal"
-    <*> v .: "submitter"
+    <*> v .: "instrument_id"
+    <*> v .: "proposal_id"
+    <*> v .: "submitter_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -908,21 +908,21 @@ instance FromJSON Transaction where
 
 instance ToJSON Transaction where
   toJSON Transaction{..} = Data.Aeson.object
-    [ "_id"        .= _transactionId
-    , "instrument" .= _transactionInstrument
-    , "proposal"   .= _transactionProposal
-    , "submitter"  .= _transactionSubmitter
-    , "created"    .= _transactionCreated
-    , "deleted"    .= _transactionDeleted
-    , "updated"    .= _transactionUpdated
+    [ "_id"           .= _transactionId
+    , "instrument_id" .= _transactionInstrumentId
+    , "proposal_id"   .= _transactionProposalId
+    , "submitter_id"  .= _transactionSubmitterId
+    , "created"       .= _transactionCreated
+    , "deleted"       .= _transactionDeleted
+    , "updated"       .= _transactionUpdated
     ]
   {-# INLINE  toJSON #-}
 
 data TransactionKeyValue = TransactionKeyValue
   { _transactionKeyValueId :: TransactionKeyValueId
-  , _transactionKeyValueKey :: KeyId
-  , _transactionKeyValueTransaction :: TransactionId
-  , _transactionKeyValueValue :: ValueId
+  , _transactionKeyValueKeyId :: KeyId
+  , _transactionKeyValueTransactionId :: TransactionId
+  , _transactionKeyValueValueId :: ValueId
   , _transactionKeyValueCreated :: LocalTime
   , _transactionKeyValueDeleted :: Maybe LocalTime
   , _transactionKeyValueUpdated :: LocalTime
@@ -931,9 +931,9 @@ data TransactionKeyValue = TransactionKeyValue
 instance FromJSON TransactionKeyValue where
   parseJSON = Data.Aeson.withObject "TransactionKeyValue" $ \v -> pure TransactionKeyValue
     <*> v .: "_id"
-    <*> v .: "key"
-    <*> v .: "transaction"
-    <*> v .: "value"
+    <*> v .: "key_id"
+    <*> v .: "transaction_id"
+    <*> v .: "value_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -941,13 +941,13 @@ instance FromJSON TransactionKeyValue where
 
 instance ToJSON TransactionKeyValue where
   toJSON TransactionKeyValue{..} = Data.Aeson.object
-    [ "_id"         .= _transactionKeyValueId
-    , "key"         .= _transactionKeyValueKey
-    , "transaction" .= _transactionKeyValueTransaction
-    , "value"       .= _transactionKeyValueValue
-    , "created"     .= _transactionKeyValueCreated
-    , "deleted"     .= _transactionKeyValueDeleted
-    , "updated"     .= _transactionKeyValueUpdated
+    [ "_id"            .= _transactionKeyValueId
+    , "key_id"         .= _transactionKeyValueKeyId
+    , "transaction_id" .= _transactionKeyValueTransactionId
+    , "value_id"       .= _transactionKeyValueValueId
+    , "created"        .= _transactionKeyValueCreated
+    , "deleted"        .= _transactionKeyValueDeleted
+    , "updated"        .= _transactionKeyValueUpdated
     ]
   {-# INLINE  toJSON #-}
 
@@ -995,8 +995,8 @@ instance ToJSON User where
 
 data UserGroup = UserGroup
   { _userGroupId :: UserGroupId
-  , _userGroupGroup :: GroupId
-  , _userGroupPerson :: UserId
+  , _userGroupGroupId :: GroupId
+  , _userGroupPersonId :: UserId
   , _userGroupCreated :: LocalTime
   , _userGroupDeleted :: Maybe LocalTime
   , _userGroupUpdated :: LocalTime
@@ -1005,8 +1005,8 @@ data UserGroup = UserGroup
 instance FromJSON UserGroup where
   parseJSON = Data.Aeson.withObject "UserGroup" $ \v -> pure UserGroup
     <*> v .: "_id"
-    <*> v .: "group"
-    <*> v .: "person"
+    <*> v .: "group_id"
+    <*> v .: "person_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -1014,12 +1014,12 @@ instance FromJSON UserGroup where
 
 instance ToJSON UserGroup where
   toJSON UserGroup{..} = Data.Aeson.object
-    [ "_id"     .= _userGroupId
-    , "group"   .= _userGroupGroup
-    , "person"  .= _userGroupPerson
-    , "created" .= _userGroupCreated
-    , "deleted" .= _userGroupDeleted
-    , "updated" .= _userGroupUpdated
+    [ "_id"       .= _userGroupId
+    , "group_id"  .= _userGroupGroupId
+    , "person_id" .= _userGroupPersonId
+    , "created"   .= _userGroupCreated
+    , "deleted"   .= _userGroupDeleted
+    , "updated"   .= _userGroupUpdated
     ]
   {-# INLINE  toJSON #-}
 

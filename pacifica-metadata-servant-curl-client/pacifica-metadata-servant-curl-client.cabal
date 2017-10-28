@@ -21,6 +21,7 @@ library
                      , bytestring
                      , curl-client
                      , data-default
+                     , http-api-data
                      , http-types
                      , pacifica-metadata
                      , pacifica-metadata-servant
