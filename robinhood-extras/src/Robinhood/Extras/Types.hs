@@ -20,6 +20,7 @@
 module Robinhood.Extras.Types where
 
 import           Data.Text (Text)
+import           Data.Time.Clock (UTCTime)
 import qualified Database.Persist.TH
 import           Robinhood.Types
 
@@ -28,14 +29,14 @@ EntryFullPath sql=file_path_map
   Id (Key Entry) sql=file_id
   pathId (Key EntryBasename) sql=path_id
   fullPath Text sql=full_path
-  addedDate Int sql=added_date
+  addedDate UTCTime sql=added_date
   deriving Eq
   deriving Show
 
 EntryBasename sql=file_path_listing
   Id (Key Entry) sql=path_id
   path Text sql=path
-  addedDate Int sql=added_date
+  addedDate UTCTime sql=added_date
   deriving Eq
   deriving Show
 |]

@@ -77,15 +77,15 @@ instance Default CurlCmdSpec where
 data CurlRequest a = CurlRequest
   { _curlRequestBody :: Maybe ByteString
   , _curlRequestMethod :: Maybe StdMethod
+  , _curlRequestStatusCode :: Maybe Integer
   , _curlRequestMkURL :: URLType -> URL
   , _curlRequestDecode :: ByteString -> Either String a
-  , _curlRequestStatusCode :: Integer
   }
 
 -- | Construct a new cURL client whose monadic computation yields the result of sending the given request and decoding the response.
 --
 fromCurlRequest :: CurlRequest a -> CurlClientM a
-fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode , _curlRequestStatusCode = _statusCode }) = CurlClientM $ do
+fromCurlRequest (CurlRequest { _curlRequestBody = std_in_Maybe , _curlRequestMethod = stdMethodMaybe , _curlRequestStatusCode = _statusCodeMaybe , _curlRequestMkURL = mkURL , _curlRequestDecode = eitherDecode }) = CurlClientM $ do
   cp <- asks $ \(CurlClientEnv (CurlCmdSpec spec0) url_type0) -> case setCurlRequestURL (mkURL url_type0) $ maybe id setCurlRequestBody std_in_Maybe $ maybe id setCurlRequestMethod stdMethodMaybe $ spec0 of
     ShellCommand cmd_args -> System.Process.shell cmd_args
     RawCommand cmd args -> System.Process.proc cmd args

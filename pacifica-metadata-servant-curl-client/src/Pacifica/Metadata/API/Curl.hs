@@ -172,7 +172,7 @@ createAnalyticalToolProposal
 readAnalyticalToolProposal
   :: ()
   => Maybe AnalyticalToolProposalId -- ^ _id
-  -> Maybe AnalyticalToolId -- ^ analytic_tool_id
+  -> Maybe AnalyticalToolId -- ^ analytical_tool_id
   -> Maybe ProposalId -- ^ proposal_id
   -> Maybe LocalTime -- ^ created
   -> Maybe LocalTime -- ^ deleted
@@ -209,7 +209,7 @@ createAnalyticalToolTransaction
 readAnalyticalToolTransaction
   :: ()
   => Maybe AnalyticalToolTransactionId -- ^ _id
-  -> Maybe AnalyticalToolId -- ^ analytic_tool_id
+  -> Maybe AnalyticalToolId -- ^ analytical_tool_id
   -> Maybe TransactionId -- ^ transaction_id
   -> Maybe LocalTime -- ^ created
   -> Maybe LocalTime -- ^ deleted
@@ -1178,6 +1178,7 @@ data Link = Link
   , _linkQueryParams :: [(String, String)] -- ^ Query parameters.
   , _linkRequestMethod :: Maybe StdMethod -- ^ HTTP request method.
   , _linkRequestBody :: Maybe ByteString -- ^ HTTP request body.
+  , _linkRequestStatusCode :: Maybe Integer -- ^ HTTP response status code.
   } deriving (Eq, Ord, Read, Show)
 
 -- | Empty HTTP GET request to root endpoint, i.e., no segments, no query parameters, and no request body.
@@ -1188,6 +1189,7 @@ instance Default Link where
     , _linkQueryParams = []
     , _linkRequestMethod = Nothing
     , _linkRequestBody = Nothing
+    , _linkRequestStatusCode = Nothing
     }
   {-# INLINE  def #-}
 
@@ -1218,15 +1220,21 @@ setRequestMethod proxy l = l { _linkRequestMethod = Just stdMethod }
     stdMethod = either (error . Text.Printf.printf "ReflectMethod.reflectMethod failed: \"%s\"" . Data.ByteString.Lazy.Char8.unpack . Data.ByteString.Lazy.Char8.fromStrict) id $ Network.HTTP.Types.parseMethod $ reflectMethod proxy
 {-# INLINE  setRequestMethod #-}
 
+-- | Set the HTTP response status code.
+--
+setResponseStatusCode :: Integer -> Link -> Link
+setResponseStatusCode n l = l { _linkRequestStatusCode = Just n }
+{-# INLINE  setResponseStatusCode #-}
+
 -- | Run a 'Link' with the specified decoder function.
 --
-runLinkWith :: Integer -> (ByteString -> Either String a) -> Link -> CurlRequest a
-runLinkWith n eitherDecode l = CurlRequest
+runLinkWith :: (ByteString -> Either String a) -> Link -> CurlRequest a
+runLinkWith eitherDecode l = CurlRequest
   { _curlRequestBody = _linkRequestBody l
   , _curlRequestMethod = _linkRequestMethod l
+  , _curlRequestStatusCode = _linkRequestStatusCode l
   , _curlRequestMkURL = \url_type0 -> pure (URL url_type0) <*> (Data.List.intercalate "/" . _linkSegments) <*> _linkQueryParams $ l
   , _curlRequestDecode = eitherDecode
-  , _curlRequestStatusCode = n
   }
 {-# INLINE  runLinkWith #-}
 
@@ -1269,7 +1277,7 @@ instance (ToJSON a, HasClient sub) => HasClient (ReqBody '[JSON] a :> sub) where
 
 instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] NoContent) where
   type MkClient (Verb method statusCode '[JSON] NoContent) = CurlClientM NoContent
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = Network.Curl.Client.fromCurlRequest . runLinkWith statusCode (const $ Right NoContent) . setRequestMethod (Proxy :: Proxy method)
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = Network.Curl.Client.fromCurlRequest . runLinkWith (const $ Right NoContent) . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
     where
       statusCode :: Integer
       statusCode = GHC.TypeLits.natVal (Proxy :: Proxy statusCode)
@@ -1277,7 +1285,7 @@ instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasC
 
 instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJSON a) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] a) where
   type MkClient (Verb method statusCode '[JSON] a) = CurlClientM a
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLinkWith statusCode Data.Aeson.eitherDecode' . setRequestMethod (Proxy :: Proxy method)
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLinkWith Data.Aeson.eitherDecode' . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
     where
       statusCode :: Integer
       statusCode = GHC.TypeLits.natVal (Proxy :: Proxy statusCode)

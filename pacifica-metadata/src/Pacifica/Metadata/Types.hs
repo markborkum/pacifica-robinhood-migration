@@ -150,8 +150,8 @@ data AnalyticalToolProposal = AnalyticalToolProposal
 instance FromJSON AnalyticalToolProposal where
   parseJSON = Data.Aeson.withObject "AnalyticalToolProposal" $ \v -> pure AnalyticalToolProposal
     <*> v .: "_id"
-    <*> v .: "analytical_tool"
-    <*> v .: "proposal"
+    <*> v .: "analytical_tool_id"
+    <*> v .: "proposal_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
@@ -180,8 +180,8 @@ data AnalyticalToolTransaction = AnalyticalToolTransaction
 instance FromJSON AnalyticalToolTransaction where
   parseJSON = Data.Aeson.withObject "AnalyticalToolTransaction" $ \v -> pure AnalyticalToolTransaction
     <*> v .: "_id"
-    <*> v .: "analytical_tool"
-    <*> v .: "transaction"
+    <*> v .: "analytical_tool_id"
+    <*> v .: "transaction_id"
     <*> v .: "created"
     <*> v .: "deleted"
     <*> v .: "updated"
