@@ -82,7 +82,7 @@ There are two methods for running supported, from source and after installed.
 
 For example, to run the `robinhood-exe` target, provided by the `robinhood` sub-package:
 
-`stack exec robinhood:exe:robinhood-exe`
+`stack exec robinhood-exe`
 
 ### From installation
 
