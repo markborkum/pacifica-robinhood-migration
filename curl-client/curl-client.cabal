@@ -20,9 +20,13 @@ library
                      , bytestring
                      , data-default
                      , http-types
+                     , monad-control
+                     , monad-logger
                      , mtl
                      , process
+                     , text
                      , transformers
+                     , transformers-base
                      , url
   default-language:    Haskell2010
   ghc-options:         -Wall

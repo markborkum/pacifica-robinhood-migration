@@ -23,6 +23,7 @@ library
                      , data-default
                      , http-api-data
                      , http-types
+                     , monad-logger
                      , pacifica-metadata
                      , pacifica-metadata-servant
                      , process

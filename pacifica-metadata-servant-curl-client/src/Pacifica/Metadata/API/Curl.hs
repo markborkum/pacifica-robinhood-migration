@@ -17,6 +17,7 @@
 --
 -- For example, to request the data from a Pacifica Metadata Services deployment at http://0.0.0.0:8121 for the 'User' with @('UserId' 42)@:
 --
+-- > import Control.Monad.Logger
 -- > import Data.Default
 -- > import Network.Curl.Client
 -- > import Network.URL
@@ -31,9 +32,9 @@
 -- >     spec = def
 -- >     env :: CurlClientEnv
 -- >     env = CurlClientEnv spec $ Absolute $ Host (HTTP False) "0.0.0.0" $ Just 8121
--- >     mx :: CurlClientM (Maybe User)
--- >     mx = readUserByPrimaryKey $ UserId 42
--- >   x <- runCurlClientM mx env
+-- >     mx :: CurlClientT (LoggingT IO) (Maybe User)
+-- >     mx = fromCurlRequest $ readUserByPrimaryKey $ UserId 42
+-- >   x <- runStderrLoggingT $ runCurlClientT mx env
 -- >   case x of
 -- >     Left err -> putStr "Error: " >> print err
 -- >     Right Nothing -> putStrLn "Warning: User not found"
@@ -97,6 +98,7 @@ module Pacifica.Metadata.API.Curl
   , createValue , readValue , readValueByPrimaryKey , updateValue , destroyValue
   ) where
 
+import           Control.Monad.Logger (LoggingT)
 import           Data.Aeson (FromJSON(), ToJSON())
 import qualified Data.Aeson
 import           Data.ByteString.Lazy (ByteString)
@@ -110,7 +112,7 @@ import           Data.Time.Calendar (Day)
 import           Data.Time.LocalTime (LocalTime)
 import           GHC.TypeLits (KnownNat(), KnownSymbol(), Nat)
 import qualified GHC.TypeLits
-import           Network.Curl.Client (CurlClientM, CurlRequest(..))
+import           Network.Curl.Client (CurlClientT, CurlRequest(..))
 import qualified Network.Curl.Client
 import           Network.HTTP.Types (StdMethod)
 import qualified Network.HTTP.Types
@@ -131,7 +133,7 @@ import qualified Web.Internal.HttpApiData
 createAnalyticalTool
   :: ()
   => AnalyticalTool -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readAnalyticalTool
   :: ()
   => Maybe AnalyticalToolId -- ^ _id
@@ -142,16 +144,16 @@ readAnalyticalTool
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [AnalyticalTool]
+  -> CurlRequest [AnalyticalTool]
 updateAnalyticalTool
   :: ()
   => Maybe AnalyticalToolId -- ^ _id
   -> AnalyticalTool -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyAnalyticalTool
   :: ()
   => Maybe AnalyticalToolId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 (createAnalyticalTool :<|> readAnalyticalTool :<|> updateAnalyticalTool :<|> destroyAnalyticalTool) = toClient apiAnalyticalTool def
 {-# NOINLINE  createAnalyticalTool #-}
 {-# NOINLINE  readAnalyticalTool #-}
@@ -161,14 +163,14 @@ destroyAnalyticalTool
 readAnalyticalToolByPrimaryKey
   :: ()
   => AnalyticalToolId -- ^ _id
-  -> CurlClientM (Maybe AnalyticalTool)
+  -> CurlRequest (Maybe AnalyticalTool)
 readAnalyticalToolByPrimaryKey analyticalToolId = safeHead <$> readAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolByPrimaryKey #-}
 
 createAnalyticalToolProposal
   :: ()
   => AnalyticalToolProposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readAnalyticalToolProposal
   :: ()
   => Maybe AnalyticalToolProposalId -- ^ _id
@@ -179,16 +181,16 @@ readAnalyticalToolProposal
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [AnalyticalToolProposal]
+  -> CurlRequest [AnalyticalToolProposal]
 updateAnalyticalToolProposal
   :: ()
   => Maybe AnalyticalToolProposalId -- ^ _id
   -> AnalyticalToolProposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyAnalyticalToolProposal
   :: ()
   => Maybe AnalyticalToolProposalId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createAnalyticalToolProposal :<|> readAnalyticalToolProposal :<|> updateAnalyticalToolProposal :<|> destroyAnalyticalToolProposal = toClient apiAnalyticalToolProposal def
 {-# NOINLINE  createAnalyticalToolProposal #-}
 {-# NOINLINE  readAnalyticalToolProposal #-}
@@ -198,14 +200,14 @@ createAnalyticalToolProposal :<|> readAnalyticalToolProposal :<|> updateAnalytic
 readAnalyticalToolProposalByPrimaryKey
   :: ()
   => AnalyticalToolProposalId -- ^ _id
-  -> CurlClientM (Maybe AnalyticalToolProposal)
+  -> CurlRequest (Maybe AnalyticalToolProposal)
 readAnalyticalToolProposalByPrimaryKey analyticalToolProposalId = safeHead <$> readAnalyticalToolProposal (Just analyticalToolProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolProposalByPrimaryKey #-}
 
 createAnalyticalToolTransaction
   :: ()
   => AnalyticalToolTransaction -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readAnalyticalToolTransaction
   :: ()
   => Maybe AnalyticalToolTransactionId -- ^ _id
@@ -216,16 +218,16 @@ readAnalyticalToolTransaction
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [AnalyticalToolTransaction]
+  -> CurlRequest [AnalyticalToolTransaction]
 updateAnalyticalToolTransaction
   :: ()
   => Maybe AnalyticalToolTransactionId -- ^ _id
   -> AnalyticalToolTransaction -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyAnalyticalToolTransaction
   :: ()
   => Maybe AnalyticalToolTransactionId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createAnalyticalToolTransaction :<|> readAnalyticalToolTransaction :<|> updateAnalyticalToolTransaction :<|> destroyAnalyticalToolTransaction = toClient apiAnalyticalToolTransaction def
 {-# NOINLINE  createAnalyticalToolTransaction #-}
 {-# NOINLINE  readAnalyticalToolTransaction #-}
@@ -235,14 +237,14 @@ createAnalyticalToolTransaction :<|> readAnalyticalToolTransaction :<|> updateAn
 readAnalyticalToolTransactionByPrimaryKey
   :: ()
   => AnalyticalToolTransactionId -- ^ _id
-  -> CurlClientM (Maybe AnalyticalToolTransaction)
+  -> CurlRequest (Maybe AnalyticalToolTransaction)
 readAnalyticalToolTransactionByPrimaryKey analyticalToolTransactionId = safeHead <$> readAnalyticalToolTransaction (Just analyticalToolTransactionId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolTransactionByPrimaryKey #-}
 
 createCitation
   :: ()
   => Citation -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readCitation
   :: ()
   => Maybe CitationId -- ^ _id
@@ -261,16 +263,16 @@ readCitation
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Citation]
+  -> CurlRequest [Citation]
 updateCitation
   :: ()
   => Maybe CitationId -- ^ _id
   -> Citation -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyCitation
   :: ()
   => Maybe CitationId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createCitation :<|> readCitation :<|> updateCitation :<|> destroyCitation = toClient apiCitation def
 {-# NOINLINE  createCitation #-}
 {-# NOINLINE  readCitation #-}
@@ -280,14 +282,14 @@ createCitation :<|> readCitation :<|> updateCitation :<|> destroyCitation = toCl
 readCitationByPrimaryKey
   :: ()
   => CitationId -- ^ _id
-  -> CurlClientM (Maybe Citation)
+  -> CurlRequest (Maybe Citation)
 readCitationByPrimaryKey citationId = safeHead <$> readCitation (Just citationId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationByPrimaryKey #-}
 
 createCitationContributor
   :: ()
   => CitationContributor -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readCitationContributor
   :: ()
   => Maybe CitationContributorId -- ^ _id
@@ -299,16 +301,16 @@ readCitationContributor
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [CitationContributor]
+  -> CurlRequest [CitationContributor]
 updateCitationContributor
   :: ()
   => Maybe CitationContributorId -- ^ _id
   -> CitationContributor -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyCitationContributor
   :: ()
   => Maybe CitationContributorId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createCitationContributor :<|> readCitationContributor :<|> updateCitationContributor :<|> destroyCitationContributor = toClient apiCitationContributor def
 {-# NOINLINE  createCitationContributor #-}
 {-# NOINLINE  readCitationContributor #-}
@@ -318,14 +320,14 @@ createCitationContributor :<|> readCitationContributor :<|> updateCitationContri
 readCitationContributorByPrimaryKey
   :: ()
   => CitationContributorId -- ^ _id
-  -> CurlClientM (Maybe CitationContributor)
+  -> CurlRequest (Maybe CitationContributor)
 readCitationContributorByPrimaryKey citationContributorId = safeHead <$> readCitationContributor (Just citationContributorId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationContributorByPrimaryKey #-}
 
 createCitationKeyword
   :: ()
   => CitationKeyword -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readCitationKeyword
   :: ()
   => Maybe CitationKeywordId -- ^ _id
@@ -336,16 +338,16 @@ readCitationKeyword
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [CitationKeyword]
+  -> CurlRequest [CitationKeyword]
 updateCitationKeyword
   :: ()
   => Maybe CitationKeywordId -- ^ _id
   -> CitationKeyword -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyCitationKeyword
   :: ()
   => Maybe CitationKeywordId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createCitationKeyword :<|> readCitationKeyword :<|> updateCitationKeyword :<|> destroyCitationKeyword = toClient apiCitationKeyword def
 {-# NOINLINE  createCitationKeyword #-}
 {-# NOINLINE  readCitationKeyword #-}
@@ -355,14 +357,14 @@ createCitationKeyword :<|> readCitationKeyword :<|> updateCitationKeyword :<|> d
 readCitationKeywordByPrimaryKey
   :: ()
   => CitationKeywordId -- ^ _id
-  -> CurlClientM (Maybe CitationKeyword)
+  -> CurlRequest (Maybe CitationKeyword)
 readCitationKeywordByPrimaryKey citationKeywordId = safeHead <$> readCitationKeyword (Just citationKeywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationKeywordByPrimaryKey #-}
 
 createCitationProposal
   :: ()
   => CitationProposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readCitationProposal
   :: ()
   => Maybe CitationProposalId -- ^ _id
@@ -373,16 +375,16 @@ readCitationProposal
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [CitationProposal]
+  -> CurlRequest [CitationProposal]
 updateCitationProposal
   :: ()
   => Maybe CitationProposalId -- ^ _id
   -> CitationProposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyCitationProposal
   :: ()
   => Maybe CitationProposalId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createCitationProposal :<|>readCitationProposal :<|> updateCitationProposal :<|> destroyCitationProposal = toClient apiCitationProposal def
 {-# NOINLINE  createCitationProposal #-}
 {-# NOINLINE  readCitationProposal #-}
@@ -392,14 +394,14 @@ createCitationProposal :<|>readCitationProposal :<|> updateCitationProposal :<|>
 readCitationProposalByPrimaryKey
   :: ()
   => CitationProposalId -- ^ _id
-  -> CurlClientM (Maybe CitationProposal)
+  -> CurlRequest (Maybe CitationProposal)
 readCitationProposalByPrimaryKey citationProposalId = safeHead <$> readCitationProposal (Just citationProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationProposalByPrimaryKey #-}
 
 createContributor
   :: ()
   => Contributor -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readContributor
   :: ()
   => Maybe ContributorId -- ^ _id
@@ -415,16 +417,16 @@ readContributor
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Contributor]
+  -> CurlRequest [Contributor]
 updateContributor
   :: ()
   => Maybe ContributorId -- ^ _id
   -> Contributor -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyContributor
   :: ()
   => Maybe ContributorId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createContributor :<|> readContributor :<|> updateContributor :<|> destroyContributor = toClient apiContributor def
 {-# NOINLINE  createContributor #-}
 {-# NOINLINE  readContributor #-}
@@ -434,14 +436,14 @@ createContributor :<|> readContributor :<|> updateContributor :<|> destroyContri
 readContributorByPrimaryKey
   :: ()
   => ContributorId -- ^ _id
-  -> CurlClientM (Maybe Contributor)
+  -> CurlRequest (Maybe Contributor)
 readContributorByPrimaryKey contributorId = safeHead <$> readContributor (Just contributorId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readContributorByPrimaryKey #-}
 
 createFile
   :: ()
   => File -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readFile
   :: ()
   => Maybe FileId -- ^ _id
@@ -460,16 +462,16 @@ readFile
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [File]
+  -> CurlRequest [File]
 updateFile
   :: ()
   => Maybe FileId -- ^ _id
   -> File -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyFile
   :: ()
   => Maybe FileId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createFile :<|> readFile :<|> updateFile :<|> destroyFile = toClient apiFile def
 {-# NOINLINE  createFile #-}
 {-# NOINLINE  readFile #-}
@@ -479,14 +481,14 @@ createFile :<|> readFile :<|> updateFile :<|> destroyFile = toClient apiFile def
 readFileByPrimaryKey
   :: ()
   => FileId
-  -> CurlClientM (Maybe File)
+  -> CurlRequest (Maybe File)
 readFileByPrimaryKey fileId = safeHead <$> readFile (Just fileId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readFileByPrimaryKey #-}
 
 createFileKeyValue
   :: ()
   => FileKeyValue -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readFileKeyValue
   :: ()
   => Maybe FileKeyValueId -- ^ _id
@@ -498,16 +500,16 @@ readFileKeyValue
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [FileKeyValue]
+  -> CurlRequest [FileKeyValue]
 updateFileKeyValue
   :: ()
   => Maybe FileKeyValueId -- ^ _id
   -> FileKeyValue -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyFileKeyValue
   :: ()
   => Maybe FileKeyValueId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createFileKeyValue :<|> readFileKeyValue :<|> updateFileKeyValue :<|> destroyFileKeyValue = toClient apiFileKeyValue def
 {-# NOINLINE  createFileKeyValue #-}
 {-# NOINLINE  readFileKeyValue #-}
@@ -517,14 +519,14 @@ createFileKeyValue :<|> readFileKeyValue :<|> updateFileKeyValue :<|> destroyFil
 readFileKeyValueByPrimaryKey
   :: ()
   => FileKeyValueId
-  -> CurlClientM (Maybe FileKeyValue)
+  -> CurlRequest (Maybe FileKeyValue)
 readFileKeyValueByPrimaryKey fileKeyValueId = safeHead <$> readFileKeyValue (Just fileKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readFileKeyValueByPrimaryKey #-}
 
 createGroup
   :: ()
   => Group -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readGroup
   :: ()
   => Maybe GroupId -- ^ _id
@@ -536,16 +538,16 @@ readGroup
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Group]
+  -> CurlRequest [Group]
 updateGroup
   :: ()
   => Maybe GroupId -- ^ _id
   -> Group -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyGroup
   :: ()
   => Maybe GroupId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createGroup :<|> readGroup :<|> updateGroup :<|> destroyGroup = toClient apiGroup def
 {-# NOINLINE  createGroup #-}
 {-# NOINLINE  readGroup #-}
@@ -555,14 +557,14 @@ createGroup :<|> readGroup :<|> updateGroup :<|> destroyGroup = toClient apiGrou
 readGroupByPrimaryKey
   :: ()
   => GroupId
-  -> CurlClientM (Maybe Group)
+  -> CurlRequest (Maybe Group)
 readGroupByPrimaryKey groupId = safeHead <$> readGroup (Just groupId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readGroupByPrimaryKey #-}
 
 createInstitution
   :: ()
   => Institution -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readInstitution
   :: ()
   => Maybe InstitutionId -- ^ _id
@@ -575,16 +577,16 @@ readInstitution
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Institution]
+  -> CurlRequest [Institution]
 updateInstitution
   :: ()
   => Maybe InstitutionId -- ^ _id
   -> Institution -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyInstitution
   :: ()
   => Maybe InstitutionId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createInstitution :<|> readInstitution :<|> updateInstitution :<|> destroyInstitution = toClient apiInstitution def
 {-# NOINLINE  createInstitution #-}
 {-# NOINLINE  readInstitution #-}
@@ -594,14 +596,14 @@ createInstitution :<|> readInstitution :<|> updateInstitution :<|> destroyInstit
 readInstitutionByPrimaryKey
   :: ()
   => InstitutionId
-  -> CurlClientM (Maybe Institution)
+  -> CurlRequest (Maybe Institution)
 readInstitutionByPrimaryKey institutionId = safeHead <$> readInstitution (Just institutionId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE readInstitutionByPrimaryKey #-}
 
 createInstitutionPerson
   :: ()
   => InstitutionPerson -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readInstitutionPerson
   :: ()
   => Maybe InstitutionPersonId -- ^ _id
@@ -612,16 +614,16 @@ readInstitutionPerson
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [InstitutionPerson]
+  -> CurlRequest [InstitutionPerson]
 updateInstitutionPerson
   :: ()
   => Maybe InstitutionPersonId -- ^ _id
   -> InstitutionPerson -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyInstitutionPerson
   :: ()
   => Maybe InstitutionPersonId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createInstitutionPerson :<|> readInstitutionPerson :<|> updateInstitutionPerson :<|> destroyInstitutionPerson = toClient apiInstitutionPerson def
 {-# NOINLINE  createInstitutionPerson #-}
 {-# NOINLINE  readInstitutionPerson #-}
@@ -631,14 +633,14 @@ createInstitutionPerson :<|> readInstitutionPerson :<|> updateInstitutionPerson 
 readInstitutionPersonByPrimaryKey
   :: ()
   => InstitutionPersonId
-  -> CurlClientM (Maybe InstitutionPerson)
+  -> CurlRequest (Maybe InstitutionPerson)
 readInstitutionPersonByPrimaryKey institutionPersonId = safeHead <$> readInstitutionPerson (Just institutionPersonId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstitutionPersonByPrimaryKey #-}
 
 createInstrument
   :: ()
   => Instrument -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readInstrument
   :: ()
   => Maybe InstrumentId -- ^ _id
@@ -652,16 +654,16 @@ readInstrument
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Instrument]
+  -> CurlRequest [Instrument]
 updateInstrument
   :: ()
   => Maybe InstrumentId -- ^ _id
   -> Instrument -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyInstrument
   :: ()
   => Maybe InstrumentId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createInstrument :<|> readInstrument :<|> updateInstrument :<|> destroyInstrument = toClient apiInstrument def
 {-# NOINLINE  createInstrument #-}
 {-# NOINLINE  readInstrument #-}
@@ -671,14 +673,14 @@ createInstrument :<|> readInstrument :<|> updateInstrument :<|> destroyInstrumen
 readInstrumentByPrimaryKey
   :: ()
   => InstrumentId
-  -> CurlClientM (Maybe Instrument)
+  -> CurlRequest (Maybe Instrument)
 readInstrumentByPrimaryKey instrumentId = safeHead <$> readInstrument (Just instrumentId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentByPrimaryKey #-}
 
 createInstrumentCustodian
   :: ()
   => InstrumentCustodian -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readInstrumentCustodian
   :: ()
   => Maybe InstrumentCustodianId -- ^ _id
@@ -689,16 +691,16 @@ readInstrumentCustodian
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [InstrumentCustodian]
+  -> CurlRequest [InstrumentCustodian]
 updateInstrumentCustodian
   :: ()
   => Maybe InstrumentCustodianId -- ^ _id
   -> InstrumentCustodian -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyInstrumentCustodian
   :: ()
   => Maybe InstrumentCustodianId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createInstrumentCustodian :<|> readInstrumentCustodian :<|> updateInstrumentCustodian :<|> destroyInstrumentCustodian = toClient apiInstrumentCustodian def
 {-# NOINLINE  createInstrumentCustodian #-}
 {-# NOINLINE  readInstrumentCustodian #-}
@@ -708,14 +710,14 @@ createInstrumentCustodian :<|> readInstrumentCustodian :<|> updateInstrumentCust
 readInstrumentCustodianByPrimaryKey
   :: ()
   => InstrumentCustodianId
-  -> CurlClientM (Maybe InstrumentCustodian)
+  -> CurlRequest (Maybe InstrumentCustodian)
 readInstrumentCustodianByPrimaryKey instrumentCustodianId = safeHead <$> readInstrumentCustodian (Just instrumentCustodianId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentCustodianByPrimaryKey #-}
 
 createInstrumentGroup
   :: ()
   => InstrumentGroup -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readInstrumentGroup
   :: ()
   => Maybe InstrumentGroupId -- ^ _id
@@ -726,16 +728,16 @@ readInstrumentGroup
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [InstrumentGroup]
+  -> CurlRequest [InstrumentGroup]
 updateInstrumentGroup
   :: ()
   => Maybe InstrumentGroupId -- ^ _id
   -> InstrumentGroup -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyInstrumentGroup
   :: ()
   => Maybe InstrumentGroupId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createInstrumentGroup :<|> readInstrumentGroup :<|> updateInstrumentGroup :<|> destroyInstrumentGroup = toClient apiInstrumentGroup def
 {-# NOINLINE  createInstrumentGroup #-}
 {-# NOINLINE  readInstrumentGroup #-}
@@ -745,14 +747,14 @@ createInstrumentGroup :<|> readInstrumentGroup :<|> updateInstrumentGroup :<|> d
 readInstrumentGroupByPrimaryKey
   :: ()
   => InstrumentGroupId
-  -> CurlClientM (Maybe InstrumentGroup)
+  -> CurlRequest (Maybe InstrumentGroup)
 readInstrumentGroupByPrimaryKey instrumentGroupId = safeHead <$> readInstrumentGroup (Just instrumentGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentGroupByPrimaryKey #-}
 
 createJournal
   :: ()
   => Journal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readJournal
   :: ()
   => Maybe JournalId -- ^ _id
@@ -765,16 +767,16 @@ readJournal
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Journal]
+  -> CurlRequest [Journal]
 updateJournal
   :: ()
   => Maybe JournalId -- ^ _id
   -> Journal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyJournal
   :: ()
   => Maybe JournalId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createJournal :<|> readJournal :<|> updateJournal :<|> destroyJournal = toClient apiJournal def
 {-# NOINLINE  createJournal #-}
 {-# NOINLINE  readJournal #-}
@@ -784,14 +786,14 @@ createJournal :<|> readJournal :<|> updateJournal :<|> destroyJournal = toClient
 readJournalByPrimaryKey
   :: ()
   => JournalId
-  -> CurlClientM (Maybe Journal)
+  -> CurlRequest (Maybe Journal)
 readJournalByPrimaryKey journalId = safeHead <$> readJournal (Just journalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readJournalByPrimaryKey #-}
 
 createKey
   :: ()
   => Key -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readKey
   :: ()
   => Maybe KeyId -- ^ _id
@@ -802,16 +804,16 @@ readKey
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Key]
+  -> CurlRequest [Key]
 updateKey
   :: ()
   => Maybe KeyId -- ^ _id
   -> Key -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyKey
   :: ()
   => Maybe KeyId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createKey :<|> readKey :<|> updateKey :<|> destroyKey = toClient apiKey def
 {-# NOINLINE  createKey #-}
 {-# NOINLINE  readKey #-}
@@ -821,14 +823,14 @@ createKey :<|> readKey :<|> updateKey :<|> destroyKey = toClient apiKey def
 readKeyByPrimaryKey
   :: ()
   => KeyId
-  -> CurlClientM (Maybe Key)
+  -> CurlRequest (Maybe Key)
 readKeyByPrimaryKey keyId = safeHead <$> readKey (Just keyId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readKeyByPrimaryKey #-}
 
 createKeyword
   :: ()
   => Keyword -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readKeyword
   :: ()
   => Maybe KeywordId -- ^ _id
@@ -839,16 +841,16 @@ readKeyword
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Keyword]
+  -> CurlRequest [Keyword]
 updateKeyword
   :: ()
   => Maybe KeywordId -- ^ _id
   -> Keyword -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyKeyword
   :: ()
   => Maybe KeywordId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createKeyword :<|> readKeyword :<|> updateKeyword :<|> destroyKeyword = toClient apiKeyword def
 {-# NOINLINE  createKeyword #-}
 {-# NOINLINE  readKeyword #-}
@@ -858,14 +860,14 @@ createKeyword :<|> readKeyword :<|> updateKeyword :<|> destroyKeyword = toClient
 readKeywordByPrimaryKey
   :: ()
   => KeywordId
-  -> CurlClientM (Maybe Keyword)
+  -> CurlRequest (Maybe Keyword)
 readKeywordByPrimaryKey keywordId = safeHead <$> readKeyword (Just keywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readKeywordByPrimaryKey #-}
 
 createProposal
   :: ()
   => Proposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readProposal
   :: ()
   => Maybe ProposalId -- ^ _id
@@ -884,16 +886,16 @@ readProposal
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Proposal]
+  -> CurlRequest [Proposal]
 updateProposal
   :: ()
   => Maybe ProposalId -- ^ _id
   -> Proposal -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyProposal
   :: ()
   => Maybe ProposalId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createProposal :<|> readProposal :<|> updateProposal :<|> destroyProposal = toClient apiProposal def
 {-# NOINLINE  createProposal #-}
 {-# NOINLINE  readProposal #-}
@@ -903,14 +905,14 @@ createProposal :<|> readProposal :<|> updateProposal :<|> destroyProposal = toCl
 readProposalByPrimaryKey
   :: ()
   => ProposalId -- ^ _id
-  -> CurlClientM (Maybe Proposal)
+  -> CurlRequest (Maybe Proposal)
 readProposalByPrimaryKey proposalId = safeHead <$> readProposal (Just proposalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalByPrimaryKey #-}
 
 createProposalInstrument
   :: ()
   => ProposalInstrument -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readProposalInstrument
   :: ()
   => Maybe ProposalInstrumentId -- ^ _id
@@ -921,16 +923,16 @@ readProposalInstrument
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [ProposalInstrument]
+  -> CurlRequest [ProposalInstrument]
 updateProposalInstrument
   :: ()
   => Maybe ProposalInstrumentId -- ^ _id
   -> ProposalInstrument -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyProposalInstrument
   :: ()
   => Maybe ProposalInstrumentId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createProposalInstrument :<|> readProposalInstrument :<|> updateProposalInstrument :<|> destroyProposalInstrument = toClient apiProposalInstrument def
 {-# NOINLINE  createProposalInstrument #-}
 {-# NOINLINE  readProposalInstrument #-}
@@ -940,14 +942,14 @@ createProposalInstrument :<|> readProposalInstrument :<|> updateProposalInstrume
 readProposalInstrumentByPrimaryKey
   :: ()
   => ProposalInstrumentId
-  -> CurlClientM (Maybe ProposalInstrument)
+  -> CurlRequest (Maybe ProposalInstrument)
 readProposalInstrumentByPrimaryKey proposalInstrumentId = safeHead <$> readProposalInstrument (Just proposalInstrumentId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalInstrumentByPrimaryKey #-}
 
 createProposalParticipant
   :: ()
   => ProposalParticipant -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readProposalParticipant
   :: ()
   => Maybe ProposalParticipantId -- ^ _id
@@ -958,16 +960,16 @@ readProposalParticipant
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [ProposalParticipant]
+  -> CurlRequest [ProposalParticipant]
 updateProposalParticipant
   :: ()
   => Maybe ProposalParticipantId -- ^ _id
   -> ProposalParticipant -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyProposalParticipant
   :: ()
   => Maybe ProposalParticipantId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createProposalParticipant :<|> readProposalParticipant :<|> updateProposalParticipant :<|> destroyProposalParticipant = toClient apiProposalParticipant def
 {-# NOINLINE  createProposalParticipant #-}
 {-# NOINLINE  readProposalParticipant #-}
@@ -977,14 +979,14 @@ createProposalParticipant :<|> readProposalParticipant :<|> updateProposalPartic
 readProposalParticipantByPrimaryKey
   :: ()
   => ProposalParticipantId
-  -> CurlClientM (Maybe ProposalParticipant)
+  -> CurlRequest (Maybe ProposalParticipant)
 readProposalParticipantByPrimaryKey proposalParticipantId = safeHead <$> readProposalParticipant (Just proposalParticipantId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalParticipantByPrimaryKey #-}
 
 createTransaction
   :: ()
   => Transaction -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readTransaction
   :: ()
   => Maybe TransactionId -- ^ _id
@@ -996,16 +998,16 @@ readTransaction
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [Transaction]
+  -> CurlRequest [Transaction]
 updateTransaction
   :: ()
   => Maybe TransactionId -- ^ _id
   -> Transaction -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyTransaction
   :: ()
   => Maybe TransactionId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createTransaction :<|> readTransaction :<|> updateTransaction :<|> destroyTransaction = toClient apiTransaction def
 {-# NOINLINE  createTransaction #-}
 {-# NOINLINE  readTransaction #-}
@@ -1015,14 +1017,14 @@ createTransaction :<|> readTransaction :<|> updateTransaction :<|> destroyTransa
 readTransactionByPrimaryKey
   :: ()
   => TransactionId
-  -> CurlClientM (Maybe Transaction)
+  -> CurlRequest (Maybe Transaction)
 readTransactionByPrimaryKey transactionId = safeHead <$> readTransaction (Just transactionId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readTransactionByPrimaryKey #-}
 
 createTransactionKeyValue
   :: ()
   => TransactionKeyValue -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readTransactionKeyValue
   :: ()
   => Maybe TransactionKeyValueId -- ^ _id
@@ -1034,16 +1036,16 @@ readTransactionKeyValue
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ page_number
-  -> CurlClientM [TransactionKeyValue]
+  -> CurlRequest [TransactionKeyValue]
 updateTransactionKeyValue
   :: ()
   => Maybe TransactionKeyValueId -- ^ _id
   -> TransactionKeyValue -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyTransactionKeyValue
   :: ()
   => Maybe TransactionKeyValueId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createTransactionKeyValue :<|> readTransactionKeyValue :<|> updateTransactionKeyValue :<|> destroyTransactionKeyValue = toClient apiTransactionKeyValue def
 {-# NOINLINE  createTransactionKeyValue #-}
 {-# NOINLINE  readTransactionKeyValue #-}
@@ -1053,14 +1055,14 @@ createTransactionKeyValue :<|> readTransactionKeyValue :<|> updateTransactionKey
 readTransactionKeyValueByPrimaryKey
   :: ()
   => TransactionKeyValueId
-  -> CurlClientM (Maybe TransactionKeyValue)
+  -> CurlRequest (Maybe TransactionKeyValue)
 readTransactionKeyValueByPrimaryKey transactionKeyValueId = safeHead <$> readTransactionKeyValue (Just transactionKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readTransactionKeyValueByPrimaryKey #-}
 
 createUser
   :: ()
   => User -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readUser
   :: ()
   => Maybe UserId -- ^ _id
@@ -1074,16 +1076,16 @@ readUser
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ per_page
-  -> CurlClientM [User]
+  -> CurlRequest [User]
 updateUser
   :: ()
   => Maybe UserId -- ^ _id
   -> User -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyUser
   :: ()
   => Maybe UserId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createUser :<|> readUser :<|> updateUser :<|> destroyUser = toClient apiUser def
 {-# NOINLINE  createUser #-}
 {-# NOINLINE  readUser #-}
@@ -1093,14 +1095,14 @@ createUser :<|> readUser :<|> updateUser :<|> destroyUser = toClient apiUser def
 readUserByPrimaryKey
   :: ()
   => UserId -- ^ _id
-  -> CurlClientM (Maybe User)
+  -> CurlRequest (Maybe User)
 readUserByPrimaryKey userId = safeHead <$> readUser (Just userId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readUserByPrimaryKey #-}
 
 createUserGroup
   :: ()
   => UserGroup -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readUserGroup
   :: ()
   => Maybe UserGroupId -- ^ _id
@@ -1111,16 +1113,16 @@ readUserGroup
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ per_page
-  -> CurlClientM [UserGroup]
+  -> CurlRequest [UserGroup]
 updateUserGroup
   :: ()
   => Maybe UserGroupId -- ^ _id
   -> UserGroup -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyUserGroup
   :: ()
   => Maybe UserGroupId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createUserGroup :<|> readUserGroup :<|> updateUserGroup :<|> destroyUserGroup = toClient apiUserGroup def
 {-# NOINLINE  createUserGroup #-}
 {-# NOINLINE  readUserGroup #-}
@@ -1130,14 +1132,14 @@ createUserGroup :<|> readUserGroup :<|> updateUserGroup :<|> destroyUserGroup = 
 readUserGroupByPrimaryKey
   :: ()
   => UserGroupId -- ^ _id
-  -> CurlClientM (Maybe UserGroup)
+  -> CurlRequest (Maybe UserGroup)
 readUserGroupByPrimaryKey userGroupId = safeHead <$> readUserGroup (Just userGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readUserGroupByPrimaryKey #-}
 
 createValue
   :: ()
   => Value -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 readValue
   :: ()
   => Maybe ValueId -- ^ _id
@@ -1148,16 +1150,16 @@ readValue
   -> Maybe LocalTime -- ^ updated
   -> Maybe Int -- ^ items_per_page
   -> Maybe Int -- ^ per_page
-  -> CurlClientM [Value]
+  -> CurlRequest [Value]
 updateValue
   :: ()
   => Maybe ValueId -- ^ _id
   -> Value -- ^ DATA
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 destroyValue
   :: ()
   => Maybe ValueId -- ^ _id
-  -> CurlClientM NoContent
+  -> CurlRequest NoContent
 createValue :<|> readValue :<|> updateValue :<|> destroyValue = toClient apiValue def
 {-# NOINLINE  createValue #-}
 {-# NOINLINE  readValue #-}
@@ -1167,7 +1169,7 @@ createValue :<|> readValue :<|> updateValue :<|> destroyValue = toClient apiValu
 readValueByPrimaryKey
   :: ()
   => ValueId -- ^ _id
-  -> CurlClientM (Maybe Value)
+  -> CurlRequest (Maybe Value)
 readValueByPrimaryKey valueId = safeHead <$> readValue (Just valueId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readValueByPrimaryKey #-}
 
@@ -1276,16 +1278,16 @@ instance (ToJSON a, HasClient sub) => HasClient (ReqBody '[JSON] a :> sub) where
   {-# INLINE  toClient #-}
 
 instance {-# OVERLAPPING #-} (ReflectMethod method, KnownNat statusCode) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] NoContent) where
-  type MkClient (Verb method statusCode '[JSON] NoContent) = CurlClientM NoContent
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = Network.Curl.Client.fromCurlRequest . runLinkWith (const $ Right NoContent) . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
+  type MkClient (Verb method statusCode '[JSON] NoContent) = CurlRequest NoContent
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] NoContent)) = runLinkWith (const $ Right NoContent) . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
     where
       statusCode :: Integer
       statusCode = GHC.TypeLits.natVal (Proxy :: Proxy statusCode)
   {-# INLINE  toClient #-}
 
 instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJSON a) => HasClient (Verb (method :: StdMethod) (statusCode :: Nat) '[JSON] a) where
-  type MkClient (Verb method statusCode '[JSON] a) = CurlClientM a
-  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = Network.Curl.Client.fromCurlRequest . runLinkWith Data.Aeson.eitherDecode' . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
+  type MkClient (Verb method statusCode '[JSON] a) = CurlRequest a
+  toClient (Proxy :: Proxy (Verb method statusCode '[JSON] a)) = runLinkWith Data.Aeson.eitherDecode' . setResponseStatusCode statusCode . setRequestMethod (Proxy :: Proxy method)
     where
       statusCode :: Integer
       statusCode = GHC.TypeLits.natVal (Proxy :: Proxy statusCode)
