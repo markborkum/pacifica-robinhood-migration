@@ -105,6 +105,7 @@ import qualified Data.ByteString.Lazy.Char8
 import           Data.Default (Default(def))
 import qualified Data.List
 import qualified Data.List.Extra
+import qualified Data.Maybe
 import           Data.Proxy (Proxy(..))
 import           Data.Text (Text)
 import qualified Data.Text
@@ -163,7 +164,7 @@ readAnalyticalToolByPrimaryKey
   :: ()
   => AnalyticalToolId -- ^ _id
   -> CurlRequest (Maybe AnalyticalTool)
-readAnalyticalToolByPrimaryKey analyticalToolId = safeHead <$> readAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readAnalyticalToolByPrimaryKey analyticalToolId = Data.Maybe.listToMaybe <$> readAnalyticalTool (Just analyticalToolId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolByPrimaryKey #-}
 
 createAnalyticalToolProposal
@@ -200,7 +201,7 @@ readAnalyticalToolProposalByPrimaryKey
   :: ()
   => AnalyticalToolProposalId -- ^ _id
   -> CurlRequest (Maybe AnalyticalToolProposal)
-readAnalyticalToolProposalByPrimaryKey analyticalToolProposalId = safeHead <$> readAnalyticalToolProposal (Just analyticalToolProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readAnalyticalToolProposalByPrimaryKey analyticalToolProposalId = Data.Maybe.listToMaybe <$> readAnalyticalToolProposal (Just analyticalToolProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolProposalByPrimaryKey #-}
 
 createAnalyticalToolTransaction
@@ -237,7 +238,7 @@ readAnalyticalToolTransactionByPrimaryKey
   :: ()
   => AnalyticalToolTransactionId -- ^ _id
   -> CurlRequest (Maybe AnalyticalToolTransaction)
-readAnalyticalToolTransactionByPrimaryKey analyticalToolTransactionId = safeHead <$> readAnalyticalToolTransaction (Just analyticalToolTransactionId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readAnalyticalToolTransactionByPrimaryKey analyticalToolTransactionId = Data.Maybe.listToMaybe <$> readAnalyticalToolTransaction (Just analyticalToolTransactionId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readAnalyticalToolTransactionByPrimaryKey #-}
 
 createCitation
@@ -282,7 +283,7 @@ readCitationByPrimaryKey
   :: ()
   => CitationId -- ^ _id
   -> CurlRequest (Maybe Citation)
-readCitationByPrimaryKey citationId = safeHead <$> readCitation (Just citationId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readCitationByPrimaryKey citationId = Data.Maybe.listToMaybe <$> readCitation (Just citationId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationByPrimaryKey #-}
 
 createCitationContributor
@@ -320,7 +321,7 @@ readCitationContributorByPrimaryKey
   :: ()
   => CitationContributorId -- ^ _id
   -> CurlRequest (Maybe CitationContributor)
-readCitationContributorByPrimaryKey citationContributorId = safeHead <$> readCitationContributor (Just citationContributorId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readCitationContributorByPrimaryKey citationContributorId = Data.Maybe.listToMaybe <$> readCitationContributor (Just citationContributorId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationContributorByPrimaryKey #-}
 
 createCitationKeyword
@@ -357,7 +358,7 @@ readCitationKeywordByPrimaryKey
   :: ()
   => CitationKeywordId -- ^ _id
   -> CurlRequest (Maybe CitationKeyword)
-readCitationKeywordByPrimaryKey citationKeywordId = safeHead <$> readCitationKeyword (Just citationKeywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readCitationKeywordByPrimaryKey citationKeywordId = Data.Maybe.listToMaybe <$> readCitationKeyword (Just citationKeywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationKeywordByPrimaryKey #-}
 
 createCitationProposal
@@ -394,7 +395,7 @@ readCitationProposalByPrimaryKey
   :: ()
   => CitationProposalId -- ^ _id
   -> CurlRequest (Maybe CitationProposal)
-readCitationProposalByPrimaryKey citationProposalId = safeHead <$> readCitationProposal (Just citationProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readCitationProposalByPrimaryKey citationProposalId = Data.Maybe.listToMaybe <$> readCitationProposal (Just citationProposalId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readCitationProposalByPrimaryKey #-}
 
 createContributor
@@ -436,7 +437,7 @@ readContributorByPrimaryKey
   :: ()
   => ContributorId -- ^ _id
   -> CurlRequest (Maybe Contributor)
-readContributorByPrimaryKey contributorId = safeHead <$> readContributor (Just contributorId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readContributorByPrimaryKey contributorId = Data.Maybe.listToMaybe <$> readContributor (Just contributorId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readContributorByPrimaryKey #-}
 
 createFile
@@ -481,7 +482,7 @@ readFileByPrimaryKey
   :: ()
   => FileId
   -> CurlRequest (Maybe File)
-readFileByPrimaryKey fileId = safeHead <$> readFile (Just fileId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readFileByPrimaryKey fileId = Data.Maybe.listToMaybe <$> readFile (Just fileId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readFileByPrimaryKey #-}
 
 createFileKeyValue
@@ -519,7 +520,7 @@ readFileKeyValueByPrimaryKey
   :: ()
   => FileKeyValueId
   -> CurlRequest (Maybe FileKeyValue)
-readFileKeyValueByPrimaryKey fileKeyValueId = safeHead <$> readFileKeyValue (Just fileKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readFileKeyValueByPrimaryKey fileKeyValueId = Data.Maybe.listToMaybe <$> readFileKeyValue (Just fileKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readFileKeyValueByPrimaryKey #-}
 
 createGroup
@@ -557,7 +558,7 @@ readGroupByPrimaryKey
   :: ()
   => GroupId
   -> CurlRequest (Maybe Group)
-readGroupByPrimaryKey groupId = safeHead <$> readGroup (Just groupId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readGroupByPrimaryKey groupId = Data.Maybe.listToMaybe <$> readGroup (Just groupId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readGroupByPrimaryKey #-}
 
 createInstitution
@@ -596,7 +597,7 @@ readInstitutionByPrimaryKey
   :: ()
   => InstitutionId
   -> CurlRequest (Maybe Institution)
-readInstitutionByPrimaryKey institutionId = safeHead <$> readInstitution (Just institutionId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readInstitutionByPrimaryKey institutionId = Data.Maybe.listToMaybe <$> readInstitution (Just institutionId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE readInstitutionByPrimaryKey #-}
 
 createInstitutionPerson
@@ -633,7 +634,7 @@ readInstitutionPersonByPrimaryKey
   :: ()
   => InstitutionPersonId
   -> CurlRequest (Maybe InstitutionPerson)
-readInstitutionPersonByPrimaryKey institutionPersonId = safeHead <$> readInstitutionPerson (Just institutionPersonId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readInstitutionPersonByPrimaryKey institutionPersonId = Data.Maybe.listToMaybe <$> readInstitutionPerson (Just institutionPersonId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstitutionPersonByPrimaryKey #-}
 
 createInstrument
@@ -673,7 +674,7 @@ readInstrumentByPrimaryKey
   :: ()
   => InstrumentId
   -> CurlRequest (Maybe Instrument)
-readInstrumentByPrimaryKey instrumentId = safeHead <$> readInstrument (Just instrumentId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readInstrumentByPrimaryKey instrumentId = Data.Maybe.listToMaybe <$> readInstrument (Just instrumentId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentByPrimaryKey #-}
 
 createInstrumentCustodian
@@ -710,7 +711,7 @@ readInstrumentCustodianByPrimaryKey
   :: ()
   => InstrumentCustodianId
   -> CurlRequest (Maybe InstrumentCustodian)
-readInstrumentCustodianByPrimaryKey instrumentCustodianId = safeHead <$> readInstrumentCustodian (Just instrumentCustodianId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readInstrumentCustodianByPrimaryKey instrumentCustodianId = Data.Maybe.listToMaybe <$> readInstrumentCustodian (Just instrumentCustodianId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentCustodianByPrimaryKey #-}
 
 createInstrumentGroup
@@ -747,7 +748,7 @@ readInstrumentGroupByPrimaryKey
   :: ()
   => InstrumentGroupId
   -> CurlRequest (Maybe InstrumentGroup)
-readInstrumentGroupByPrimaryKey instrumentGroupId = safeHead <$> readInstrumentGroup (Just instrumentGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readInstrumentGroupByPrimaryKey instrumentGroupId = Data.Maybe.listToMaybe <$> readInstrumentGroup (Just instrumentGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readInstrumentGroupByPrimaryKey #-}
 
 createJournal
@@ -786,7 +787,7 @@ readJournalByPrimaryKey
   :: ()
   => JournalId
   -> CurlRequest (Maybe Journal)
-readJournalByPrimaryKey journalId = safeHead <$> readJournal (Just journalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readJournalByPrimaryKey journalId = Data.Maybe.listToMaybe <$> readJournal (Just journalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readJournalByPrimaryKey #-}
 
 createKey
@@ -823,7 +824,7 @@ readKeyByPrimaryKey
   :: ()
   => KeyId
   -> CurlRequest (Maybe Key)
-readKeyByPrimaryKey keyId = safeHead <$> readKey (Just keyId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readKeyByPrimaryKey keyId = Data.Maybe.listToMaybe <$> readKey (Just keyId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readKeyByPrimaryKey #-}
 
 createKeyword
@@ -860,7 +861,7 @@ readKeywordByPrimaryKey
   :: ()
   => KeywordId
   -> CurlRequest (Maybe Keyword)
-readKeywordByPrimaryKey keywordId = safeHead <$> readKeyword (Just keywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readKeywordByPrimaryKey keywordId = Data.Maybe.listToMaybe <$> readKeyword (Just keywordId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readKeywordByPrimaryKey #-}
 
 createProposal
@@ -905,7 +906,7 @@ readProposalByPrimaryKey
   :: ()
   => ProposalId -- ^ _id
   -> CurlRequest (Maybe Proposal)
-readProposalByPrimaryKey proposalId = safeHead <$> readProposal (Just proposalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readProposalByPrimaryKey proposalId = Data.Maybe.listToMaybe <$> readProposal (Just proposalId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalByPrimaryKey #-}
 
 createProposalInstrument
@@ -942,7 +943,7 @@ readProposalInstrumentByPrimaryKey
   :: ()
   => ProposalInstrumentId
   -> CurlRequest (Maybe ProposalInstrument)
-readProposalInstrumentByPrimaryKey proposalInstrumentId = safeHead <$> readProposalInstrument (Just proposalInstrumentId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readProposalInstrumentByPrimaryKey proposalInstrumentId = Data.Maybe.listToMaybe <$> readProposalInstrument (Just proposalInstrumentId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalInstrumentByPrimaryKey #-}
 
 createProposalParticipant
@@ -979,7 +980,7 @@ readProposalParticipantByPrimaryKey
   :: ()
   => ProposalParticipantId
   -> CurlRequest (Maybe ProposalParticipant)
-readProposalParticipantByPrimaryKey proposalParticipantId = safeHead <$> readProposalParticipant (Just proposalParticipantId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readProposalParticipantByPrimaryKey proposalParticipantId = Data.Maybe.listToMaybe <$> readProposalParticipant (Just proposalParticipantId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readProposalParticipantByPrimaryKey #-}
 
 createTransaction
@@ -1017,7 +1018,7 @@ readTransactionByPrimaryKey
   :: ()
   => TransactionId
   -> CurlRequest (Maybe Transaction)
-readTransactionByPrimaryKey transactionId = safeHead <$> readTransaction (Just transactionId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readTransactionByPrimaryKey transactionId = Data.Maybe.listToMaybe <$> readTransaction (Just transactionId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readTransactionByPrimaryKey #-}
 
 createTransactionKeyValue
@@ -1055,7 +1056,7 @@ readTransactionKeyValueByPrimaryKey
   :: ()
   => TransactionKeyValueId
   -> CurlRequest (Maybe TransactionKeyValue)
-readTransactionKeyValueByPrimaryKey transactionKeyValueId = safeHead <$> readTransactionKeyValue (Just transactionKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readTransactionKeyValueByPrimaryKey transactionKeyValueId = Data.Maybe.listToMaybe <$> readTransactionKeyValue (Just transactionKeyValueId) Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readTransactionKeyValueByPrimaryKey #-}
 
 createUser
@@ -1095,7 +1096,7 @@ readUserByPrimaryKey
   :: ()
   => UserId -- ^ _id
   -> CurlRequest (Maybe User)
-readUserByPrimaryKey userId = safeHead <$> readUser (Just userId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readUserByPrimaryKey userId = Data.Maybe.listToMaybe <$> readUser (Just userId) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readUserByPrimaryKey #-}
 
 createUserGroup
@@ -1132,7 +1133,7 @@ readUserGroupByPrimaryKey
   :: ()
   => UserGroupId -- ^ _id
   -> CurlRequest (Maybe UserGroup)
-readUserGroupByPrimaryKey userGroupId = safeHead <$> readUserGroup (Just userGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readUserGroupByPrimaryKey userGroupId = Data.Maybe.listToMaybe <$> readUserGroup (Just userGroupId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readUserGroupByPrimaryKey #-}
 
 createValue
@@ -1169,7 +1170,7 @@ readValueByPrimaryKey
   :: ()
   => ValueId -- ^ _id
   -> CurlRequest (Maybe Value)
-readValueByPrimaryKey valueId = safeHead <$> readValue (Just valueId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
+readValueByPrimaryKey valueId = Data.Maybe.listToMaybe <$> readValue (Just valueId) Nothing Nothing Nothing Nothing Nothing (Just 1) (Just 1)
 {-# INLINE  readValueByPrimaryKey #-}
 
 -- | A link to an endpoint that is described by a Servant API type.
@@ -1291,10 +1292,3 @@ instance {-# OVERLAPPABLE #-} (ReflectMethod method, KnownNat statusCode, FromJS
       statusCode :: Integer
       statusCode = GHC.TypeLits.natVal (Proxy :: Proxy statusCode)
   {-# INLINE  toClient #-}
-
--- | Implementation of 'head' function that is safe for empty lists.
---
-safeHead :: [a] -> Maybe a
-safeHead [] = Nothing
-safeHead (x : _) = Just x
-{-# INLINE  safeHead #-}

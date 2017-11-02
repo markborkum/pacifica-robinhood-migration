@@ -33,6 +33,7 @@ import           Data.Conduit (ConduitM, ($$))
 import qualified Data.Conduit
 import qualified Data.Conduit.List
 import qualified Data.Map
+import qualified Data.Maybe
 import           Data.String (IsString())
 import qualified Data.Text.Encoding
 import           Data.Void (Void)
@@ -116,7 +117,7 @@ main = do
                                 -- Dereference the 'User' for the current 'Entry' using Pacifica Metadata Services.
                                 let
                                   userM :: (MonadIO m) => CurlClientT (LoggingT m) (Maybe User)
-                                  userM = fromCurlRequest $ safeHead <$> readUser Nothing Nothing Nothing Nothing Nothing (Just $ NetworkId uid) Nothing Nothing Nothing (Just 1) (Just 1)
+                                  userM = fromCurlRequest $ Data.Maybe.listToMaybe <$> readUser Nothing Nothing Nothing Nothing Nothing (Just $ NetworkId uid) Nothing Nothing Nothing (Just 1) (Just 1)
                                 userEither <- runStderrLoggingT $ runCurlClientT userM envPacificaMetadata
                                 case userEither of
                                   Left err -> liftIO $ System.IO.hPutStr System.IO.stderr "cURL error: " >> System.IO.hPrint System.IO.stderr err
@@ -154,13 +155,6 @@ main = do
                         -- Run the monadic computation.
                         runReaderT (Data.Conduit.runConduit t) connEmslFs
 {-# INLINE  main #-}
-
--- | Implementation of 'head' function that is safe for empty lists.
---
-safeHead :: [a] -> Maybe a
-safeHead [] = Nothing
-safeHead (x : _) = Just x
-{-# INLINE  safeHead #-}
 
 -- | Key for cURL client configuration.
 --
