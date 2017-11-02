@@ -1,10 +1,17 @@
 language: generic
+services:
+    - postgresql
+    - elasticsearch
 sudo: false
 
 addons:
     apt:
+        sources:
+            - elasticsearch-5.x
         packages:
             - libgmp-dev
+            - elasticsearch
+            - oracle-java8-set-default
 
 cache:
     directories:
@@ -12,10 +19,12 @@ cache:
 
 
 before_install:
+    - bash -xe travis/before-install.sh
     - mkdir -p ~/.local/bin
     - export PATH=$HOME/.local/bin:$PATH
     - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
     - stack setup
+    - stack clean
 
 install:
     - stack build --coverage
