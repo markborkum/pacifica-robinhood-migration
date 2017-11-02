@@ -42,6 +42,7 @@ import           Control.Monad.Trans.Reader (ReaderT(..), runReaderT)
 import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy
 import           Data.Default (Default(def))
+import qualified Data.List.Extra
 import           Data.String (IsString())
 import qualified Data.Text
 import           Network.HTTP.Types (StdMethod)
@@ -171,11 +172,5 @@ setCurlRequestURL url spec =
     urlString = Network.URL.exportURL url
   in case spec of
     ShellCommand cmd_args -> ShellCommand $ Text.Printf.printf "%s '%s'" cmd_args urlString
-    RawCommand cmd args -> RawCommand cmd $ snoc urlString args
+    RawCommand cmd args -> RawCommand cmd $ Data.List.Extra.snoc args urlString
 {-# INLINE  setCurlRequestURL #-}
-
--- | Append an element to a list.
---
-snoc :: a -> [a] -> [a]
-snoc x xs = xs ++ [x]
-{-# INLINE  snoc #-}

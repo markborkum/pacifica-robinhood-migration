@@ -19,6 +19,7 @@ library
   build-depends:       base >= 4.7 && < 5
                      , bytestring
                      , data-default
+                     , extra
                      , http-types
                      , monad-control
                      , monad-logger
