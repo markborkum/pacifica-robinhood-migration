@@ -105,6 +105,7 @@ import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy.Char8
 import           Data.Default (Default(def))
 import qualified Data.List
+import qualified Data.List.Extra
 import           Data.Proxy (Proxy(..))
 import           Data.Text (Text)
 import qualified Data.Text
@@ -1198,13 +1199,13 @@ instance Default Link where
 -- | Add a query parameter.
 --
 addQueryParam :: String -> String -> Link -> Link
-addQueryParam k v l = l { _linkQueryParams = snoc (k, v) $ _linkQueryParams l }
+addQueryParam k v l = l { _linkQueryParams = Data.List.Extra.snoc (_linkQueryParams l) (k, v) }
 {-# INLINE  addQueryParam #-}
 
 -- | Add a path segment.
 --
 addSegment :: String -> Link -> Link
-addSegment seg l = l { _linkSegments = snoc seg $ _linkSegments l }
+addSegment seg l = l { _linkSegments = Data.List.Extra.snoc (_linkSegments l) seg }
 {-# INLINE  addSegment #-}
 
 -- | Set the HTTP request body.
@@ -1299,9 +1300,3 @@ safeHead :: [a] -> Maybe a
 safeHead [] = Nothing
 safeHead (x : _) = Just x
 {-# INLINE  safeHead #-}
-
--- | Append an element to a list.
---
-snoc :: a -> [a] -> [a]
-snoc x xs = xs ++ [x]
-{-# INLINE  snoc #-}

@@ -21,6 +21,7 @@ library
                      , bytestring
                      , curl-client
                      , data-default
+                     , extra
                      , http-api-data
                      , http-types
                      , monad-logger
