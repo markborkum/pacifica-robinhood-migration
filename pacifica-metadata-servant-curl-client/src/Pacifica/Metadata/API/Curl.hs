@@ -98,7 +98,6 @@ module Pacifica.Metadata.API.Curl
   , createValue , readValue , readValueByPrimaryKey , updateValue , destroyValue
   ) where
 
-import           Control.Monad.Logger (LoggingT)
 import           Data.Aeson (FromJSON(), ToJSON())
 import qualified Data.Aeson
 import           Data.ByteString.Lazy (ByteString)
@@ -113,8 +112,7 @@ import           Data.Time.Calendar (Day)
 import           Data.Time.LocalTime (LocalTime)
 import           GHC.TypeLits (KnownNat(), KnownSymbol(), Nat)
 import qualified GHC.TypeLits
-import           Network.Curl.Client (CurlClientT, CurlRequest(..))
-import qualified Network.Curl.Client
+import           Network.Curl.Client (CurlRequest(..))
 import           Network.HTTP.Types (StdMethod)
 import qualified Network.HTTP.Types
 import           Network.URL (URL(..))
