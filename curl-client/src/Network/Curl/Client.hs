@@ -36,7 +36,7 @@ import qualified Control.Monad.Logger
 import           Control.Monad.IO.Class (MonadIO(liftIO))
 import           Control.Monad.Reader.Class (MonadReader(), asks)
 import           Control.Monad.Trans.Class (MonadTrans(lift))
-import           Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM)
+import           Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultLiftWith2, defaultRestoreM, defaultRestoreT2)
 import           Control.Monad.Trans.Except (ExceptT(..), runExceptT)
 import           Control.Monad.Trans.Reader (ReaderT(..), runReaderT)
 import           Data.ByteString.Lazy (ByteString)
@@ -68,10 +68,10 @@ instance (MonadBase b m) => MonadBase b (CurlClientT m) where
   {-# INLINE  liftBase #-}
 
 instance MonadTransControl CurlClientT where
-  type StT CurlClientT a = Either CurlClientErr a
-  liftWith f = CurlClientT $ ReaderT $ \r -> ExceptT $ fmap Right $ f $ \t -> runExceptT $ runReaderT (getCurlClientT t) r
+  type StT CurlClientT a = StT (ExceptT CurlClientErr) (StT (ReaderT CurlClientEnv) a)
+  liftWith = defaultLiftWith2 CurlClientT getCurlClientT
   {-# INLINE  liftWith #-}
-  restoreT = CurlClientT . restoreT . restoreT
+  restoreT = defaultRestoreT2 CurlClientT
   {-# INLINE  restoreT #-}
 
 instance (MonadBaseControl b m) => MonadBaseControl b (CurlClientT m) where
