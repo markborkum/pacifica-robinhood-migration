@@ -1,0 +1,57 @@
+name:                pacifica-metadata-servant-curl-client
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://stash.pnnl.gov/users/bork374/repos/haskell-robinhood-library/pacifica-metadata-servant-curl-client#readme
+license:             LGPL
+license-file:        LICENSE
+author:              Mark Borkum
+maintainer:          mark.borkum@pnnl.gov
+copyright:           2017 Pacific Northwest National Laboratory
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Pacifica.Metadata.API.Curl
+  build-depends:       base >= 4.7 && < 5
+                     , aeson
+                     , bytestring
+                     , curl-client
+                     , data-default
+                     , extra
+                     , http-api-data
+                     , http-types
+                     , monad-logger
+                     , pacifica-metadata
+                     , pacifica-metadata-servant
+                     , process
+                     , servant
+                     , text
+                     , time
+                     , url
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+executable pacifica-metadata-servant-curl-client-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , pacifica-metadata-servant-curl-client
+  default-language:    Haskell2010
+
+test-suite pacifica-metadata-servant-curl-client-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , pacifica-metadata-servant-curl-client
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://stash.pnnl.gov/users/bork374/repos/haskell-robinhood-library/pacifica-metadata-servant-curl-client

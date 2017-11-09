@@ -56,9 +56,9 @@ Copy binaries to location on the current user's `PATH` (environment variable):
 
 ## Testing
 
-Run the test suite:
+Run the `robinhood-test` test suite, provided by the `robinhood` package:
 
-`stack test`
+`stack test robinhood:test:robinhood-test`
 
 Code coverage is enabled by passing the `--coverage` flag:
 
