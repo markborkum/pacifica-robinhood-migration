@@ -1,3 +1,4 @@
+{-# LANGUAGE  Rank2Types #-}
 {-# LANGUAGE  RecordWildCards #-}
 
 -- |
@@ -60,8 +61,10 @@ fromMySQLConfig MySQLConfig{..} = Database.Persist.MySQL.mkMySQLConnectInfo
   (Data.Text.Encoding.encodeUtf8 _mySQLConfigDatabaseName)
 {-# INLINE  fromMySQLConfig #-}
 
+newtype WrappedLdap = WrapLdap { unwrapLdap :: forall a. (Ldap -> IO a) -> IO (Either LdapError a) }
+
 -- | Converts a LDAP configuration into a deferred computation in the 'IO' monad.
 --
-withLdapClientConfig :: LdapClientConfig -> (Ldap -> IO a) -> IO (Either LdapError a)
-withLdapClientConfig LdapClientConfig{..} = Ldap.Client.with (Ldap.Client.Plain $ Data.Text.unpack _ldapClientConfigHost) (fromInteger _ldapClientConfigPort)
+withLdapClientConfig :: LdapClientConfig -> WrappedLdap
+withLdapClientConfig LdapClientConfig{..} = WrapLdap (Ldap.Client.with (Ldap.Client.Plain $ Data.Text.unpack _ldapClientConfigHost) (fromInteger _ldapClientConfigPort))
 {-# INLINE  withLdapClientConfig #-}
