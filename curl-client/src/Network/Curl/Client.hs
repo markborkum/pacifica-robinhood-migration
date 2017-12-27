@@ -29,7 +29,7 @@ module Network.Curl.Client
   , fromCurlRequest
   ) where
 
-import           Control.Monad.Base (MonadBase(liftBase))
+import           Control.Monad.Base (MonadBase(liftBase), liftBaseDefault)
 import           Control.Monad.Error.Class (MonadError(throwError))
 import           Control.Monad.Logger (MonadLogger())
 import qualified Control.Monad.Logger
@@ -64,7 +64,7 @@ instance MonadTrans CurlClientT where
   {-# INLINE  lift #-}
 
 instance (MonadBase b m) => MonadBase b (CurlClientT m) where
-  liftBase = CurlClientT . liftBase
+  liftBase = liftBaseDefault
   {-# INLINE  liftBase #-}
 
 instance MonadTransControl CurlClientT where
