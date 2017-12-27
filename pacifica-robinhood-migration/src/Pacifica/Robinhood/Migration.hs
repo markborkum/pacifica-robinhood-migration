@@ -10,9 +10,11 @@
 --
 module Pacifica.Robinhood.Migration
   ( -- * Re-exports
-    module Pacifica.Robinhood.Migration.Conversions
+    module Pacifica.Robinhood.Migration.App
+  , module Pacifica.Robinhood.Migration.Conversions
   , module Pacifica.Robinhood.Migration.Types
   ) where
 
+import           Pacifica.Robinhood.Migration.App
 import           Pacifica.Robinhood.Migration.Conversions
 import           Pacifica.Robinhood.Migration.Types

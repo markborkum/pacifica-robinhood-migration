@@ -17,31 +17,10 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Pacifica.Robinhood.Migration
+                     , Pacifica.Robinhood.Migration.App
                      , Pacifica.Robinhood.Migration.Conversions
                      , Pacifica.Robinhood.Migration.Types
   build-depends:       base >= 4.7 && < 5
-                     , aeson
-                     , containers
-                     , curl-client
-                     , ldap-client
-                     , pacifica-metadata
-                     , pacifica-metadata-servant
-                     , pacifica-metadata-servant-curl-client
-                     , persistent
-                     , persistent-mysql-haskell
-                     , process
-                     , robinhood
-                     , robinhood-extras
-                     , text
-                     , url
-  default-language:    Haskell2010
-  ghc-options:         -Wall
-
-executable pacifica-robinhood-migration-exe
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
                      , aeson
                      , bytestring
                      , conduit
@@ -49,12 +28,12 @@ executable pacifica-robinhood-migration-exe
                      , curl-client
                      , exceptions
                      , ldap-client
+                     , monad-control
                      , monad-logger
                      , mtl
                      , pacifica-metadata
                      , pacifica-metadata-servant
                      , pacifica-metadata-servant-curl-client
-                     , pacifica-robinhood-migration
                      , persistent
                      , persistent-mysql-haskell
                      , process
@@ -65,6 +44,33 @@ executable pacifica-robinhood-migration-exe
                      , transformers
                      , transformers-base
                      , url
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+executable pacifica-robinhood-migration-exe
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , bytestring
+                     , conduit
+                     , curl-client
+                     , exceptions
+                     , ldap-client
+                     , monad-control
+                     , monad-logger
+                     , mtl
+                     , pacifica-metadata
+                     , pacifica-metadata-servant
+                     , pacifica-metadata-servant-curl-client
+                     , pacifica-robinhood-migration
+                     , persistent
+                     , resourcet
+                     , robinhood
+                     , robinhood-extras
+                     , text
+                     , transformers
+                     , transformers-base
   default-language:    Haskell2010
 
 test-suite pacifica-robinhood-migration-test
