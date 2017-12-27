@@ -11,7 +11,7 @@
 -- Stability:   experimental
 -- Portability: portable
 --
--- This module provides the entry-point for the "scan-robinhood-entries" executable.
+-- This module provides the entry-point for the "scan-robinhood-entries-exe" executable.
 --
 -- When built by The Haskell Tool Stack, the executable is invoked using the following command:
 --
@@ -109,5 +109,5 @@ instance Default Command where
         &= System.Console.CmdArgs.Implicit.explicit
         &= System.Console.CmdArgs.Implicit.name "offset"
         &= System.Console.CmdArgs.Implicit.help "OFFSET BY"
-    } &= System.Console.CmdArgs.Implicit.summary "scan-robinhood-entries"
+    } &= System.Console.CmdArgs.Implicit.summary "scan-robinhood-entries-exe"
   {-# INLINABLE  def #-}
