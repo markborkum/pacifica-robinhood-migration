@@ -73,6 +73,31 @@ executable pacifica-robinhood-migration-exe
                      , transformers-base
   default-language:    Haskell2010
 
+executable scan-robinhood-entries-exe
+  hs-source-dirs:      app
+  main-is:             ScanRobinhoodEntries.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , bytestring
+                     , cmdargs
+                     , conduit
+                     , curl-client
+                     , data-default
+                     , exceptions
+                     , monad-control
+                     , monad-logger
+                     , mtl
+                     , pacifica-robinhood-migration
+                     , persistent
+                     , persistent-mysql-haskell
+                     , resourcet
+                     , robinhood
+                     , robinhood-extras
+                     , text
+                     , transformers
+                     , transformers-base
+  default-language:    Haskell2010
+
 test-suite pacifica-robinhood-migration-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
