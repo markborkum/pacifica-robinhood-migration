@@ -43,6 +43,7 @@ packages:
 - 'pacifica-robinhood-migration'
 - 'robinhood'
 - 'robinhood-extras'
+- 'robinhood-treemap'
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
