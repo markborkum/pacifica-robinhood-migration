@@ -57,7 +57,7 @@ import qualified System.IO
 --
 main :: IO ()
 main = do
-  -- | Read the command-line arguments.
+  -- Read the command-line arguments.
   Command{..} <- System.Console.CmdArgs.Implicit.cmdArgs def
   let
     -- | Read the configuration file from standard input stream.
