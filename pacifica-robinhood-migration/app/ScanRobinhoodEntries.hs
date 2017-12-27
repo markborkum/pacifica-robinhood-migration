@@ -15,7 +15,7 @@
 --
 -- When built by The Haskell Tool Stack, the executable is invoked using the following command:
 --
--- > stack exec scan-robinhood-entries-exe < config.json > filenames.txt
+-- > stack exec scan-robinhood-entries-exe --limit=1024 --offset=0 < config.json > filenames.txt
 --
 -- The configuration for the executable is a JSON document that is provided via
 -- the standard input stream. In the above example, the JSON document is
