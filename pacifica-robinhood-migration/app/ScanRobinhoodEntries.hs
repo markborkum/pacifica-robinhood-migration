@@ -101,21 +101,13 @@ data Command = Command
 
 instance Default Command where
   def = Command
-    { _commandLimitTo = cLimitTo
+    { _commandLimitTo = 1024
         &= System.Console.CmdArgs.Implicit.explicit
         &= System.Console.CmdArgs.Implicit.name "limit"
         &= System.Console.CmdArgs.Implicit.help "LIMIT TO"
-    , _commandOffsetBy = cOffsetBy
+    , _commandOffsetBy = 0
         &= System.Console.CmdArgs.Implicit.explicit
         &= System.Console.CmdArgs.Implicit.name "offset"
         &= System.Console.CmdArgs.Implicit.help "OFFSET BY"
     } &= System.Console.CmdArgs.Implicit.summary "scan-robinhood-entries"
   {-# INLINABLE  def #-}
-
-cLimitTo :: Int
-cLimitTo = 1024
-{-# INLINABLE  cLimitTo #-}
-
-cOffsetBy :: Int
-cOffsetBy = 0
-{-# INLINABLE  cOffsetBy #-}
