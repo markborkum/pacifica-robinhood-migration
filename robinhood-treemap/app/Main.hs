@@ -13,7 +13,7 @@
 --
 -- When built by The Haskell Tool Stack, the executable is invoked using the following command:
 --
--- > stack exec robinhood-treemap-exe --depth=3 < filenames.txt > treemap.json
+-- > stack exec robinhood-treemap-exe -- --depth=3 < filenames.txt > treemap.json
 --
 -- The input for the executable is a plain-text document that is provided via
 -- the standard input stream.  Each line of the plain-text document is a
