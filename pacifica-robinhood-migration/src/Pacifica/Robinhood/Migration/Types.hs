@@ -16,8 +16,10 @@ module Pacifica.Robinhood.Migration.Types where
 import           Control.Comonad.Cofree (Cofree(..))
 import           Control.Monad.Logger (LogLevel(..))
 import           Data.Aeson (FromJSON(..), ToJSON(..), (.:), (.=))
+import           Data.Aeson.Types (Pair)
 import qualified Data.Aeson (object, withObject)
 import           Data.Map (Map)
+import           Data.String (IsString())
 import           Data.Text (Text)
 import qualified Data.Text (intercalate, splitOn, unpack)
 
@@ -184,7 +186,7 @@ data FilePathRule
 
 instance FromJSON FilePathRule where
   parseJSON = Data.Aeson.withObject "FilePathRule" $ \v -> do
-    nameText <- v .: "__name__"
+    nameText <- v .: cName
     case Data.Text.splitOn "." nameText of
       ["break"] -> pure BreakFilePathRule
       ["pass"] -> pure PassFilePathRule
@@ -192,24 +194,24 @@ instance FromJSON FilePathRule where
         <*> v .: "message"
       ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
         <*> v .: "message"
-      _ -> fail $ "Invalid \"__name__\": " ++ Data.Text.unpack nameText
+      _ -> fail $ "Invalid \"" ++ cName ++ "\": " ++ Data.Text.unpack nameText
   {-# INLINE  parseJSON #-}
 
 instance ToJSON FilePathRule where
-  toJSON BreakFilePathRule = Data.Aeson.object
-    [ "__name__" .= ("break" :: Text)
-    ]
-  toJSON PassFilePathRule = Data.Aeson.object
-    [ "__name__" .= ("pass" :: Text)
-    ]
-  toJSON (LoggerFilePathRule lvl msg) = Data.Aeson.object
-    [ "__name__" .= Data.Text.intercalate "." ["logger", fromLogLevel lvl]
-    , "message" .= msg
-    ]
-  toJSON (SayFilePathRule msg) = Data.Aeson.object
-    [ "__name__" .= ("say" :: Text)
-    , "message" .= msg
-    ]
+  toJSON rule = Data.Aeson.object $ (cName .= toName rule) : toPairs rule
+    where
+      toName :: FilePathRule -> Text
+      toName BreakFilePathRule = "break"
+      toName PassFilePathRule = "pass"
+      toName (LoggerFilePathRule lvl _) = Data.Text.intercalate "." ["logger", fromLogLevel lvl]
+      toName (SayFilePathRule _) = "say"
+      {-# INLINE  toName #-}
+      toPairs :: FilePathRule -> [Pair]
+      toPairs BreakFilePathRule = []
+      toPairs PassFilePathRule = []
+      toPairs (LoggerFilePathRule _ msg) = ["message" .= msg]
+      toPairs (SayFilePathRule msg) = ["message" .= msg]
+      {-# INLINE  toPairs #-}
   {-# INLINE  toJSON #-}
 
 -- | Convert a 'LogLevel' to a textual identifier.
@@ -231,3 +233,7 @@ toLogLevel "warn" = LevelWarn
 toLogLevel "error" = LevelError
 toLogLevel x = LevelOther x
 {-# INLINE  toLogLevel #-}
+
+cName :: (IsString a) => a
+cName = "__name__"
+{-# INLINE cName #-}

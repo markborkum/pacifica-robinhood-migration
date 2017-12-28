@@ -274,21 +274,25 @@ runFilePathPattern (FilePathPattern (rs :< m)) needle haystack env
 -- | Run a rule for 'FilePath's.
 --
 runFilePathRule :: (AppFunConstraint m val) => FilePathRule -> FilePath -> FilePath -> AppFunEnv val -> (a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()) -> a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()
-runFilePathRule rule needle haystack _env k x = case rule of
-  BreakFilePathRule -> do
-    -- Short-circuit the evaluation.
-    return ()
-  PassFilePathRule -> do
-    -- Do nothing.
-    k $! x
-  LoggerFilePathRule lvl msg -> do
-    -- Format the message, and then log at the specified level.
-    Control.Monad.Logger.logWithoutLoc (Data.Text.pack haystack) lvl $ formatText needle haystack msg
-    k $! x
-  SayFilePathRule msg -> do
-    -- Format the message, and then print to the standard output stream.
-    liftIO $ Data.Text.IO.hPutStrLn System.IO.stdout $ formatText needle haystack msg
-    k $! x
+runFilePathRule rule needle haystack _env k x =
+  let
+    ruleS :: Text
+    ruleS = Data.Text.pack $ show rule
+  in case rule of
+    BreakFilePathRule -> do
+      -- Short-circuit the evaluation.
+      return ()
+    PassFilePathRule -> do
+      -- Do nothing.
+      k $! x
+    LoggerFilePathRule lvl msg -> do
+      -- Format the message, and then log at the specified level.
+      Control.Monad.Logger.logWithoutLoc "pacifica-robinhood-migration" lvl $ formatText ruleS needle haystack msg
+      k $! x
+    SayFilePathRule msg -> do
+      -- Format the message, and then print to the standard output stream.
+      liftIO $ Data.Text.IO.hPutStrLn System.IO.stdout $ formatText ruleS needle haystack msg
+      k $! x
 {-# INLINE  runFilePathRule #-}
 
 -- | Format text for printing.
@@ -296,6 +300,6 @@ runFilePathRule rule needle haystack _env k x = case rule of
 -- NOTE Replaces "%needle%" and "%haystack" with @needle@ and @haystack@,
 -- respectively.
 --
-formatText :: FilePath -> FilePath -> Text -> Text
-formatText needle haystack = Data.Text.replace "%needle%" (Data.Text.pack needle) . Data.Text.replace "%haystack%" (Data.Text.pack haystack)
+formatText :: Text -> FilePath -> FilePath -> Text -> Text
+formatText ruleS needle haystack = Data.Text.replace (Data.Text.pack $ "%" ++ cName ++ "%") ruleS . Data.Text.replace "%needle%" (Data.Text.pack needle) . Data.Text.replace "%haystack%" (Data.Text.pack haystack)
 {-# INLINE  formatText #-}
