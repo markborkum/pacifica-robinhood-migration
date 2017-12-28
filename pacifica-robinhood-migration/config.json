@@ -29,5 +29,32 @@
         "database_name": "rbh_emslfs"
       }
     }
+  },
+  "filepath": {
+    "rules": [
+      {
+        "__name__": "say",
+        "message": "%haystack%"
+      }
+    ],
+    "children": {
+      "/path/to/ignored/files/": {
+        "rules": [
+          {
+            "__name__": "break"
+          }
+        ],
+        "children": {}
+      },
+      "/path/to/zip/files/**/*.zip": {
+        "rules": [
+          {
+            "__name__": "logger.info",
+            "message": "Successfully matched zip archive using \"%needle%\""
+          }
+        ],
+        "children" : {}
+      }
+    }
   }
 }

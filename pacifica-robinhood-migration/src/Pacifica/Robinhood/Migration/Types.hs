@@ -13,25 +13,31 @@
 --
 module Pacifica.Robinhood.Migration.Types where
 
+import           Control.Comonad.Cofree (Cofree(..))
+import           Control.Monad.Logger (LogLevel(..))
 import           Data.Aeson (FromJSON(..), ToJSON(..), (.:), (.=))
-import qualified Data.Aeson
+import qualified Data.Aeson (object, withObject)
 import           Data.Map (Map)
 import           Data.Text (Text)
+import qualified Data.Text (intercalate, splitOn, unpack)
 
 -- | The configuration for a Pacifica/Robinhood migration.
 --
 data Config = Config
   { _configAuthConfig :: AuthConfig -- ^ auth
+  , _configFilePathConfig :: FilePathConfig -- ^ filepath
   } deriving (Eq, Ord, Read, Show)
 
 instance FromJSON Config where
   parseJSON = Data.Aeson.withObject "Config" $ \v -> pure Config
     <*> v .: "auth"
+    <*> v .: "filepath"
   {-# INLINE  parseJSON #-}
 
 instance ToJSON Config where
   toJSON Config{..} = Data.Aeson.object
     [ "auth" .= _configAuthConfig
+    , "filepath" .= _configFilePathConfig
     ]
   {-# INLINE  toJSON #-}
 
@@ -132,3 +138,96 @@ instance ToJSON MySQLConfig where
     , "database_name" .= _mySQLConfigDatabaseName
     ]
   {-# INLINE  toJSON #-}
+
+-- | The 'FilePath' configuration for a Pacifica/Robinhood migration.
+--
+data FilePathConfig = FilePathConfig
+  { _filePathConfigFilePathPattern :: FilePathPattern
+  } deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathConfig where
+  parseJSON v = pure FilePathConfig
+    <*> parseJSON v
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathConfig where
+  toJSON FilePathConfig{..} = toJSON _filePathConfigFilePathPattern
+  {-# INLINE  toJSON #-}
+
+-- | A pattern for 'FilePath's.
+--
+newtype FilePathPattern = FilePathPattern { getFilePathPattern :: Cofree (Map FilePath) [FilePathRule] }
+  deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathPattern where
+  parseJSON = Data.Aeson.withObject "FilePathPattern" $ \v -> pure FilePathPattern
+    <*> (pure (:<)
+      <*> v .: "rules"
+      <*> (fmap getFilePathPattern <$> v .: "children"))
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathPattern where
+  toJSON (FilePathPattern (rs :< m)) = Data.Aeson.object
+    [ "rules" .= rs
+    , "children" .= fmap FilePathPattern m
+    ]
+  {-# INLINE  toJSON #-}
+
+-- | A rule for 'FilePath's.
+--
+data FilePathRule
+  = BreakFilePathRule -- ^ "break"
+  | PassFilePathRule -- ^ "pass"
+  | LoggerFilePathRule LogLevel Text -- ^ "logger.x" where "x" is in {"debug", "info", "warn", "error"}
+  | SayFilePathRule Text -- "say"
+  deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathRule where
+  parseJSON = Data.Aeson.withObject "FilePathRule" $ \v -> do
+    nameText <- v .: "__name__"
+    case Data.Text.splitOn "." nameText of
+      ["break"] -> pure BreakFilePathRule
+      ["pass"] -> pure PassFilePathRule
+      ["say"] -> pure SayFilePathRule
+        <*> v .: "message"
+      ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
+        <*> v .: "message"
+      _ -> fail $ "Invalid \"__name__\": " ++ Data.Text.unpack nameText
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathRule where
+  toJSON BreakFilePathRule = Data.Aeson.object
+    [ "__name__" .= ("break" :: Text)
+    ]
+  toJSON PassFilePathRule = Data.Aeson.object
+    [ "__name__" .= ("pass" :: Text)
+    ]
+  toJSON (LoggerFilePathRule lvl msg) = Data.Aeson.object
+    [ "__name__" .= Data.Text.intercalate "." ["logger", fromLogLevel lvl]
+    , "message" .= msg
+    ]
+  toJSON (SayFilePathRule msg) = Data.Aeson.object
+    [ "__name__" .= ("say" :: Text)
+    , "message" .= msg
+    ]
+  {-# INLINE  toJSON #-}
+
+-- | Convert a 'LogLevel' to a textual identifier.
+--
+fromLogLevel :: LogLevel -> Text
+fromLogLevel LevelDebug = "debug"
+fromLogLevel LevelInfo = "info"
+fromLogLevel LevelWarn = "warn"
+fromLogLevel LevelError = "error"
+fromLogLevel (LevelOther x) = x
+{-# INLINE  fromLogLevel #-}
+
+-- | Convert a textual identifier to a 'LogLevel'.
+--
+toLogLevel :: Text -> LogLevel
+toLogLevel "debug" = LevelDebug
+toLogLevel "info" = LevelInfo
+toLogLevel "warn" = LevelWarn
+toLogLevel "error" = LevelError
+toLogLevel x = LevelOther x
+{-# INLINE  toLogLevel #-}
