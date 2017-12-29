@@ -16,17 +16,11 @@
       }
     },
     "mysql": {
-      "rbh_archive": {
-        "host": "my.sql.host",
+      "rbh": {
+        "host": "my.mysql.host",
         "username": "root",
         "password": "root",
-        "database_name": "rbh_archive"
-      },
-      "rbh_emslfs": {
-        "host": "my.sql.host",
-        "username": "root",
-        "password": "root",
-        "database_name": "rbh_emslfs"
+        "database_name": "rbh"
       }
     }
   },

@@ -31,7 +31,7 @@ module Pacifica.Robinhood.Migration.App
   ) where
 
 import           Control.Comonad.Cofree (Cofree(..))
-import           Control.Monad (forM_, join)
+import           Control.Monad (join)
 import           Control.Monad.Base (MonadBase(..), liftBaseDefault)
 import           Control.Monad.Catch (MonadThrow())
 import           Control.Monad.Error.Class (MonadError(throwError))
@@ -54,7 +54,6 @@ import           Data.Void (Void)
 import qualified Database.Persist
 import qualified Database.Persist.MySQL
 import           Database.Persist.Sql (SqlBackend)
-import           Data.String (IsString())
 import           Data.Text (Text)
 import qualified Data.Text
 import qualified Data.Text.IO (hPutStrLn)
@@ -72,16 +71,16 @@ import qualified System.IO (stdout)
 
 -- | The environment for an application.
 --
-data AppEnv = AppEnv !Config [(MySQLConnectInfo, (CurlClientEnv, WrappedLdap))]
+data AppEnv = AppEnv !Config !CurlClientEnv !WrappedLdap !MySQLConnectInfo
 
 -- | An error, thrown by the application at run-time.
 --
 data AppError
-  = CurlClientConfigNotFound !String
+  = CurlClientConfigNotFound !Text
   -- ^ The cURL client configuration was not found (c.f., 'cCurlClientConfigKey').
-  | LdapClientConfigNotFound !String
+  | LdapClientConfigNotFound !Text
   -- ^ The LDAP client configuration was not found (c.f., 'cLdapClientConfigKey').
-  | MySQLConfigNotFound !String
+  | MySQLConfigNotFound !Text
   -- ^ The MySQL configuration was not found (c.f., 'cMySQLConfigKeyArchive' and 'cMySQLConfigKeyEmslFs').
   | DecodeConfigFailure !String
   -- ^ The configuration file could not be decoded.
@@ -122,8 +121,8 @@ instance MonadTransControl AppT where
 --
 -- Note: This function is *not* exposed to end-users.
 --
-fromByteString :: IO ByteString -> ExceptT AppError IO AppEnv
-fromByteString io = do
+fromByteString :: Text -> Text -> Text -> IO ByteString -> ExceptT AppError IO AppEnv
+fromByteString kCurlClientConfig kLdapClientConfig kMySQLConfig io = do
   configEither <- liftIO $ fmap Data.Aeson.eitherDecode io
   case configEither of
     -- If the contents cannot be decoded, then display an error message.
@@ -132,69 +131,35 @@ fromByteString io = do
     -- Otherwise, continue...
     Right config -> do
       -- Convert the cURL client configuration.
-      case fmap fromCurlClientConfig $ Data.Map.lookup cCurlClientConfigKey $ _authConfigCurlClientConfig $ _configAuthConfig config of
+      case fmap fromCurlClientConfig $ Data.Map.lookup kCurlClientConfig $ _authConfigCurlClientConfig $ _configAuthConfig config of
         -- If the cURL client configuration cannot be converted, then display an error message.
         Nothing -> do
-          throwError $ CurlClientConfigNotFound cCurlClientConfigKey
+          throwError $ CurlClientConfigNotFound kCurlClientConfig
         -- Otherwise, continue...
-        Just envPacificaMetadata -> do
+        Just envCurlClient -> do
           -- Convert the LDAP client configuration.
-          case fmap withLdapClientConfig $ Data.Map.lookup cLdapClientConfigKey $ _authConfigLdapClientConfig $ _configAuthConfig config of
+          case fmap withLdapClientConfig $ Data.Map.lookup kLdapClientConfig $ _authConfigLdapClientConfig $ _configAuthConfig config of
             -- If the LDAP client configuration cannot be converted, then display an error message.
             Nothing -> do
-              throwError $ LdapClientConfigNotFound cLdapClientConfigKey
+              throwError $ LdapClientConfigNotFound kLdapClientConfig
             -- Otherwise, continue...
-            Just wrappedLdap -> do
-              -- Convert the MySQL configuration for "archive" database.
-              case fmap fromMySQLConfig $ Data.Map.lookup cMySQLConfigKeyArchive $ _authConfigMySQLConfig $ _configAuthConfig config of
+            Just envLdapClient -> do
+              -- Convert the MySQL configuration for MySQL database.
+              case fmap fromMySQLConfig $ Data.Map.lookup kMySQLConfig $ _authConfigMySQLConfig $ _configAuthConfig config of
                 -- If the MySQL configuration cannot be converted, then display an error message.
                 Nothing -> do
-                  throwError $ MySQLConfigNotFound cMySQLConfigKeyArchive
+                  throwError $ MySQLConfigNotFound kMySQLConfig
                 -- Otherwise, continue...
-                Just _infoArchive -> do -- TODO Uncomment
-                  -- Convert the MySQL configuration for "emslfs" database.
-                  case fmap fromMySQLConfig $ Data.Map.lookup cMySQLConfigKeyEmslFs $ _authConfigMySQLConfig $ _configAuthConfig config of
-                    -- If the MySQL configuration cannot be converted, then display an error message.
-                    Nothing -> do
-                      throwError $ MySQLConfigNotFound cMySQLConfigKeyEmslFs
-                    -- Otherwise, continue...
-                    Just infoEmslFs -> do
-                      return $ AppEnv config $ map (\x -> (x, (envPacificaMetadata, wrappedLdap)))
-                        [ infoEmslFs
-                        -- , infoArchive -- TODO Uncomment
-                        ]
+                Just envMySQL -> do
+                  return $ AppEnv config envCurlClient envLdapClient envMySQL
 {-# INLINABLE  fromByteString #-}
 
 -- | Run an 'AppT' by providing a computation that returns a 'ByteString' whose
 -- contents provide the configuration.
 --
-runAppTFromByteString :: AppT IO () -> IO ByteString -> IO (Either AppError ())
-runAppTFromByteString t = runExceptT . join . fmap (runReaderT (runAppT t)) . fromByteString
+runAppTFromByteString :: AppT IO () -> Text -> Text -> Text -> IO ByteString -> IO (Either AppError ())
+runAppTFromByteString t kCurlClientConfig kLdapClientConfig kMySQLConfig = runExceptT . join . fmap (runReaderT (runAppT t)) . fromByteString kCurlClientConfig kLdapClientConfig kMySQLConfig
 {-# INLINABLE  runAppTFromByteString #-}
-
--- | Key for cURL client configuration.
---
-cCurlClientConfigKey :: (IsString a) => a
-cCurlClientConfigKey = "pacifica-metadata"
-{-# INLINE  cCurlClientConfigKey #-}
-
--- | Key for LDAP client configuration.
---
-cLdapClientConfigKey :: (IsString a) => a
-cLdapClientConfigKey = "active-directory"
-{-# INLINE  cLdapClientConfigKey #-}
-
--- | Key for MySQL configuration for "archive" database.
---
-cMySQLConfigKeyArchive :: (IsString a) => a
-cMySQLConfigKeyArchive = "rbh_archive"
-{-# INLINE  cMySQLConfigKeyArchive #-}
-
--- | Key for MySQL configuration for "emslfs" database.
---
-cMySQLConfigKeyEmslFs :: (IsString a) => a
-cMySQLConfigKeyEmslFs = "rbh_emslfs"
-{-# INLINE  cMySQLConfigKeyEmslFs #-}
 
 -- | The constraint for an arbitrary function for an application.
 --
@@ -202,7 +167,7 @@ type AppFunConstraint m val = (MonadBase IO m, MonadBaseControl IO m, MonadIO m,
 
 -- | The environment for an arbitrary function for an application.
 --
-data AppFunEnv val = AppFunEnv !Config !CurlClientEnv !WrappedLdap !(Entity val)
+data AppFunEnv val = AppFunEnv !AppEnv !(Entity val)
 
 -- | Skeleton for 'AppT' that streams all @val@s in a given @persistent@ database.
 --
@@ -221,8 +186,8 @@ streamAppT
   -> (m () -> AppT IO ()) -- ^ extract
   -> AppT IO ()
 streamAppT limitTo0 offsetBy0 filterList k f = do
-  (AppEnv config appClientInfoList) <- ask
-  f $ runResourceT $ forM_ appClientInfoList $ \ ~(info, r) -> Database.Persist.MySQL.withMySQLConn info $ runReaderT $ do
+  env@(AppEnv _config _envCurlClient _envLdapClient envMySQL) <- ask
+  f $ runResourceT $ Database.Persist.MySQL.withMySQLConn envMySQL $ runReaderT $ do
       -- Compute the total number of records.
       n <- Database.Persist.Sql.count filterList
       let
@@ -232,7 +197,7 @@ streamAppT limitTo0 offsetBy0 filterList k f = do
           | offsetBy >= n = return ()
           -- Otherwise, retrieve and process the next set of records, and schedule the next "slide" (for the window).
           | otherwise = do
-              Database.Persist.selectSource filterList [LimitTo limitTo, OffsetBy offsetBy] $$ Data.Conduit.List.mapM_ (k . uncurry (AppFunEnv config) r)
+              Database.Persist.selectSource filterList [LimitTo limitTo, OffsetBy offsetBy] $$ Data.Conduit.List.mapM_ (k . AppFunEnv env)
               go limitTo (offsetBy + limitTo)
       -- Execute the conduit.
       Data.Conduit.runConduit $ go limitTo0 offsetBy0
