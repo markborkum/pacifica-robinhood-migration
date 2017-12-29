@@ -180,8 +180,8 @@ instance ToJSON FilePathPattern where
 data FilePathRule
   = BreakFilePathRule -- ^ "break"
   | PassFilePathRule -- ^ "pass"
+  | PrintFilePathRule Text -- "print"
   | LoggerFilePathRule LogLevel Text -- ^ "logger.x" where "x" is in {"debug", "info", "warn", "error"}
-  | SayFilePathRule Text -- "say"
   deriving (Eq, Ord, Read, Show)
 
 instance FromJSON FilePathRule where
@@ -190,7 +190,7 @@ instance FromJSON FilePathRule where
     case Data.Text.splitOn "." nameText of
       ["break"] -> pure BreakFilePathRule
       ["pass"] -> pure PassFilePathRule
-      ["say"] -> pure SayFilePathRule
+      ["print"] -> pure PrintFilePathRule
         <*> v .: "message"
       ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
         <*> v .: "message"
@@ -203,14 +203,14 @@ instance ToJSON FilePathRule where
       toName :: FilePathRule -> Text
       toName BreakFilePathRule = "break"
       toName PassFilePathRule = "pass"
+      toName (PrintFilePathRule _) = "print"
       toName (LoggerFilePathRule lvl _) = Data.Text.intercalate "." ["logger", fromLogLevel lvl]
-      toName (SayFilePathRule _) = "say"
       {-# INLINE  toName #-}
       toPairs :: FilePathRule -> [Pair]
       toPairs BreakFilePathRule = []
       toPairs PassFilePathRule = []
+      toPairs (PrintFilePathRule msg) = ["message" .= msg]
       toPairs (LoggerFilePathRule _ msg) = ["message" .= msg]
-      toPairs (SayFilePathRule msg) = ["message" .= msg]
       {-# INLINE  toPairs #-}
   {-# INLINE  toJSON #-}
 

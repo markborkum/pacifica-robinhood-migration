@@ -33,7 +33,7 @@
   "filepath": {
     "rules": [
       {
-        "__name__": "say",
+        "__name__": "print",
         "message": "%haystack%"
       }
     ],

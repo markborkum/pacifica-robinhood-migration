@@ -285,13 +285,13 @@ runFilePathRule rule needle haystack _env k x =
     PassFilePathRule -> do
       -- Do nothing.
       k $! x
+    PrintFilePathRule msg -> do
+      -- Format the message, and then print to the standard output stream.
+      liftIO $ Data.Text.IO.hPutStrLn System.IO.stdout $ formatText ruleS needle haystack msg
+      k $! x
     LoggerFilePathRule lvl msg -> do
       -- Format the message, and then log at the specified level.
       Control.Monad.Logger.logWithoutLoc "pacifica-robinhood-migration" lvl $ formatText ruleS needle haystack msg
-      k $! x
-    SayFilePathRule msg -> do
-      -- Format the message, and then print to the standard output stream.
-      liftIO $ Data.Text.IO.hPutStrLn System.IO.stdout $ formatText ruleS needle haystack msg
       k $! x
 {-# INLINE  runFilePathRule #-}
 
