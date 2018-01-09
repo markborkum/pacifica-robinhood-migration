@@ -1,6 +1,5 @@
 {-# LANGUAGE  BangPatterns #-}
 {-# LANGUAGE  OverloadedStrings #-}
-{-# LANGUAGE  RecordWildCards #-}
 
 -- |
 -- Module:      Robinhood.Treemap
