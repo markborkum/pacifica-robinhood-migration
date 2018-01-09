@@ -14,5 +14,5 @@ module Pacifica.Robinhood.Migration
   , module Pacifica.Robinhood.Migration.Types
   ) where
 
-import           Pacifica.Robinhood.Migration.Conversions
+import           Pacifica.Robinhood.Migration.App
 import           Pacifica.Robinhood.Migration.Types

@@ -62,7 +62,6 @@ import           Database.Persist (PersistEntity(), PersistEntityBackend())
 import qualified Database.Persist.Sql (count)
 import           Database.Persist.Types (Entity, Filter, SelectOpt(LimitTo, OffsetBy))
 import           Network.Curl.Client (CurlClientEnv)
-import           Pacifica.Robinhood.Migration.Conversions
 import           Pacifica.Robinhood.Migration.Types
 import qualified System.FilePath.Glob (compile, match)
 import           System.FilePath.Posix ((</>))
