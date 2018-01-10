@@ -1,5 +1,8 @@
+{-# LANGUAGE  DeriveDataTypeable #-}
 {-# LANGUAGE  FlexibleContexts #-}
 {-# LANGUAGE  OverloadedStrings #-}
+{-# LANGUAGE  RecordWildCards #-}
+{-# LANGUAGE  TypeFamilies #-}
 
 -- |
 -- Module:      Main
@@ -9,185 +12,142 @@
 -- Stability:   experimental
 -- Portability: portable
 --
--- This module provides the entry-point for the "pacifica-robinhood-migration" executable.
+-- This module provides the entry-point for the "pacifica-robinhood-migration-exe" executable.
 --
 -- When built by The Haskell Tool Stack, the executable is invoked using the following command:
 --
--- > cat config.json | stack exec pacifica-robinhood-migration-exe
+-- > stack exec pacifica-robinhood-migration-exe -- \
+-- >   --limit=1024 --offset=0 \
+-- >   --curl-client="pacifica-metadata" --ldap-client="active-directory" --mysql="rbh" \
+-- >   < config.json > out.txt 2> error.txt
 --
 -- The configuration for the executable is a JSON document that is provided via
--- the standard input stream. In the above example, the JSON document is persisted
--- as the @config.json@ file.
+-- the standard input stream. In the above example, the JSON document is
+-- persisted as the @config.json@ file.
+--
+-- The output for the executable is a plain-text file that is provided via the
+-- the standard output stream.  The logger writes the standard error stream. In
+-- the above example, the output and error streams are persisted as the
+-- @out.txt@ and @error.txt@ files, respectively.
 --
 module Main (main) where
 
-import           Control.Monad.Base (MonadBase())
-import           Control.Monad.Catch (MonadThrow())
-import           Control.Monad.IO.Class (MonadIO(liftIO))
-import           Control.Monad.Logger (LoggingT, runStderrLoggingT)
-import           Control.Monad.Trans.Reader (ReaderT, runReaderT)
-import           Control.Monad.Trans.Resource (ResourceT, runResourceT)
-import qualified Data.Aeson
+import qualified Control.Monad.Logger (runStderrLoggingT)
+import           Control.Monad.Trans.Reader (ReaderT)
+import           Control.Monad.Trans.Resource (ResourceT)
+import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy
-import           Data.Conduit (ConduitM, ($$))
-import qualified Data.Conduit
-import qualified Data.Conduit.List
-import qualified Data.Map
-import qualified Data.Maybe
+import           Data.Conduit (ConduitM)
+import           Data.Data (Data())
+import           Data.Default (Default(def))
 import           Data.String (IsString())
-import qualified Data.Text.Encoding
+import           Data.Text (Text)
+import qualified Data.Text
+import           Data.Typeable (Typeable())
 import           Data.Void (Void)
-import qualified Database.Persist
-import qualified Database.Persist.MySQL
 import           Database.Persist.Sql (SqlBackend)
-import qualified Database.Persist.Sql
-import           Database.Persist.Types (Entity(..), SelectOpt(LimitTo, OffsetBy))
-import           Ldap.Client (Filter(..))
-import qualified Ldap.Client
-import           Network.Curl.Client (CurlClientT, runCurlClientT, fromCurlRequest)
-import           Pacifica.Metadata
-import           Pacifica.Metadata.API.Curl
+import           Database.Persist.Types (Entity(..), Filter)
 import           Pacifica.Robinhood.Migration
-import           Robinhood
 import           Robinhood.Extras
+import           System.Console.CmdArgs.Implicit ((&=))
+import qualified System.Console.CmdArgs.Implicit (cmdArgs, explicit, help, name, summary)
+import qualified System.Exit
 import qualified System.IO
-import qualified Text.Printf
 
--- | Entry-point for the "pacifica-robinhood-migration" executable.
+-- | Entry-point for the "pacifica-robinhood-migration-exe" executable.
 --
 main :: IO ()
 main = do
-  -- Read and then decode the contents of the standard input stream.
-  configEither <- Data.Aeson.eitherDecode <$> Data.ByteString.Lazy.getContents
-  case configEither of
-    -- If the contents cannot be decoded, then display an error message.
-    Left err -> System.IO.hPutStr System.IO.stderr "Error: " >> System.IO.hPrint System.IO.stderr err
-    -- Otherwise, continue...
-    Right config -> do
-      -- Convert the cURL client configuration.
-      case fmap fromCurlClientConfig $ Data.Map.lookup cCurlClientConfigKey $ _authConfigCurlClientConfig $ _configAuthConfig config of
-        -- If the cURL client configuration cannot be converted, then display an error message.
-        Nothing -> System.IO.hPutStr System.IO.stderr $ Text.Printf.printf "cURL configuration not found: '%s'" (cCurlClientConfigKey :: String)
-        -- Otherwise, continue...
-        Just envPacificaMetadata -> do
-          -- Convert the LDAP client configuration.
-          case fmap withLdapClientConfig $ Data.Map.lookup cLdapClientConfigKey $ _authConfigLdapClientConfig $ _configAuthConfig config of
-            -- If the LDAP client configuration cannot be converted, then display an error message.
-            Nothing -> System.IO.hPutStr System.IO.stderr $ Text.Printf.printf "LDAP configuration not found: '%s'" (cLdapClientConfigKey :: String)
-            -- Otherwise, continue...
-            Just withLdap -> do
-              -- Convert the MySQL configuration for "archive" database.
-              case fmap fromMySQLConfig $ Data.Map.lookup cMySQLConfigKeyArchive $ _authConfigMySQLConfig $ _configAuthConfig config of
-                -- If the MySQL configuration cannot be converted, then display an error message.
-                Nothing -> System.IO.hPutStr System.IO.stderr $ Text.Printf.printf "MySQL configuration not found: '%s'" (cMySQLConfigKeyArchive :: String)
-                -- Otherwise, continue...
-                Just _infoArchive -> do
-                  -- Convert the MySQL configuration for "emslfs" database.
-                  case fmap fromMySQLConfig $ Data.Map.lookup cMySQLConfigKeyEmslFs $ _authConfigMySQLConfig $ _configAuthConfig config of
-                    -- If the MySQL configuration cannot be converted, then display an error message.
-                    Nothing -> System.IO.hPutStr System.IO.stderr $ Text.Printf.printf "MySQL configuration not found: '%s'" (cMySQLConfigKeyEmslFs :: String)
-                    -- Otherwise, continue...
-                    Just infoEmslFs -> do
-                      -- Create a new MySQL connection that provides the context for a monadic computation that occurs inside the 'LoggingT' and 'ResourceT' monad transformers.
-                      --
-                      -- Notes:
-                      -- * Using the 'runStderrLoggingT' function, logger output is redirected to the standard error stream.
-                      runStderrLoggingT $ runResourceT $ Database.Persist.MySQL.withMySQLConn infoEmslFs $ \connEmslFs -> do
-                        let
-                          -- | Computation for each instance of the 'Entry' data type.
-                          --
-                          -- Notes:
-                          -- * Computations take place inside an 'IO'-compatible monad.
-                          -- * Computations return the unit.
-                          go :: (MonadIO m) => Entity Entry -> m ()
-                          go (Entity { entityKey = entryId , entityVal = entry }) = do
-                            -- Print the current 'Entry' to the standard output stream.
-                            liftIO $ print (entry :: Entry)
+  let
+    -- | Read the configuration file from standard input stream.
+    --
+    io :: IO ByteString
+    io = Data.ByteString.Lazy.getContents
 
-                            -- Dereference the 'EntryFullPath' for the current 'Entry'.
-                            entryFullPathMaybe <- liftIO $ Database.Persist.Sql.runSqlPersistM (Database.Persist.Sql.get (EntryFullPathKey entryId)) connEmslFs
-                            case entryFullPathMaybe of
-                              Nothing -> liftIO $ putStr "EntryFullPath not found: " >> print entryId
-                              Just entryFullPath -> liftIO $ print (entryFullPath :: EntryFullPath)
+    -- | Create the (empty) list of filters.
+    --
+    filterList :: [Filter EntryFullPath]
+    filterList = []
 
-                            -- Extract 'uid' attribute of current 'Entry'.
-                            case entryUid entry of
-                              Nothing -> return ()
-                              Just uid -> do
-                                -- Dereference the 'User' for the current 'Entry' using Pacifica Metadata Services.
-                                let
-                                  userM :: (MonadIO m) => CurlClientT (LoggingT m) (Maybe User)
-                                  userM = fromCurlRequest $ Data.Maybe.listToMaybe <$> readUser Nothing Nothing Nothing Nothing Nothing (Just $ NetworkId uid) Nothing Nothing Nothing (Just 1) (Just 1)
-                                userEither <- runStderrLoggingT $ runCurlClientT userM envPacificaMetadata
-                                case userEither of
-                                  Left err -> liftIO $ System.IO.hPutStr System.IO.stderr "cURL error: " >> System.IO.hPrint System.IO.stderr err
-                                  Right Nothing -> return ()
-                                  Right (Just user) -> liftIO $ print (user :: User)
+    -- | Handler for each 'EntryFullPath' record.
+    --
+    handleEntryFullPath :: (AppFunConstraint m EntryFullPath) => AppFunEnv EntryFullPath -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()
+    handleEntryFullPath env@(AppFunEnv (AppEnv (Config { _configFilePathConfig = FilePathConfig { _filePathConfigFilePathPattern = x } }) _ _ _) (Entity { entityVal = EntryFullPath { entryFullPathFullPath = fp } })) = runFilePathPattern x "" (Data.Text.unpack fp) env
 
-                                -- Dereference the 'User' for the current 'Entry' using LDAP.
-                                ldapEither <- liftIO $ withLdap $ \connLdap -> do
-                                  Ldap.Client.search connLdap (Ldap.Client.Dn "ou=People,dc=emsl,dc=pnl,dc=gov") mempty (Ldap.Client.Attr "uid" := Data.Text.Encoding.encodeUtf8 uid)
-                                    [ Ldap.Client.Attr "memberOf"
-                                    , Ldap.Client.Attr "objectClass"
-                                    , Ldap.Client.Attr "mail"
-                                    , Ldap.Client.Attr "givenName"
-                                    , Ldap.Client.Attr "sn"
-                                    , Ldap.Client.Attr "telephoneNumber"
-                                    , Ldap.Client.Attr "loginShell"
-                                    , Ldap.Client.Attr "uidNumber"
-                                    , Ldap.Client.Attr "gidNumber"
-                                    , Ldap.Client.Attr "uid"
-                                    , Ldap.Client.Attr "cn"
-                                    , Ldap.Client.Attr "homeDirectory"
-                                    ]
-                                case ldapEither of
-                                  Left err -> liftIO $ System.IO.hPutStr System.IO.stderr "LDAP error: " >> System.IO.hPrint System.IO.stderr err
-                                  Right rsp -> liftIO $ print rsp
+  -- Read the command-line arguments.
+  Command{..} <- System.Console.CmdArgs.Implicit.cmdArgs def
 
-                            -- Done!
-                            return ()
-                          -- | Conduit for streaming rows of the "ENTRIES" database table, viz., instances of the 'Entry' data type.
-                          --
-                          -- Notes:
-                          -- * For purposes of demonstration, stream has fixed limit and offset.
-                          t :: (MonadBase IO m, MonadIO m, MonadThrow m) => ConduitM () Void (ReaderT SqlBackend (ResourceT (LoggingT m))) ()
-                          t = Database.Persist.selectSource [] [LimitTo cEntryLimitTo, OffsetBy cEntryOffsetBy] $$ Data.Conduit.List.mapM_ go
-                        -- Run the monadic computation.
-                        runReaderT (Data.Conduit.runConduit t) connEmslFs
+  -- Create and run a new application.
+  e <- runAppTFromByteString (streamAppT _commandLimitTo _commandOffsetBy filterList handleEntryFullPath Control.Monad.Logger.runStderrLoggingT) _commandCurlClientConfigKey _commandLdapClientConfigKey _commandMySQLConfigKey io
+  case e of
+    Left err -> do
+      System.IO.hPutStr System.IO.stderr "Error: " >> System.IO.hPrint System.IO.stderr err
+      System.Exit.exitFailure
+    Right () -> do
+      System.Exit.exitSuccess
 {-# INLINE  main #-}
 
--- | Key for cURL client configuration.
+-- | A command.
+--
+data Command = Command
+  { _commandLimitTo :: Int
+  , _commandOffsetBy :: Int
+  , _commandCurlClientConfigKey :: Text
+  , _commandLdapClientConfigKey :: Text
+  , _commandMySQLConfigKey :: Text
+  } deriving (Eq, Ord, Read, Show, Data, Typeable)
+
+instance Default Command where
+  def = Command
+    { _commandLimitTo = cLimitTo
+        &= System.Console.CmdArgs.Implicit.explicit
+        &= System.Console.CmdArgs.Implicit.name "limit"
+        &= System.Console.CmdArgs.Implicit.help "Limit to"
+    , _commandOffsetBy = cOffsetBy
+        &= System.Console.CmdArgs.Implicit.explicit
+        &= System.Console.CmdArgs.Implicit.name "offset"
+        &= System.Console.CmdArgs.Implicit.help "Offset by"
+    , _commandCurlClientConfigKey = cCurlClientConfigKey
+        &= System.Console.CmdArgs.Implicit.explicit
+        &= System.Console.CmdArgs.Implicit.name "curl-client"
+        &= System.Console.CmdArgs.Implicit.help "cURL client (Pacifica Metadata Services)"
+    , _commandLdapClientConfigKey = cLdapClientConfigKey
+        &= System.Console.CmdArgs.Implicit.explicit
+        &= System.Console.CmdArgs.Implicit.name "ldap-client"
+        &= System.Console.CmdArgs.Implicit.help "LDAP client (Active Directory)"
+    , _commandMySQLConfigKey = cMySQLConfigKey
+        &= System.Console.CmdArgs.Implicit.explicit
+        &= System.Console.CmdArgs.Implicit.name "mysql"
+        &= System.Console.CmdArgs.Implicit.help "MySQL (Robinhood Policy Engine)"
+    } &= System.Console.CmdArgs.Implicit.summary "pacifica-robinhood-migration-exe"
+  {-# INLINABLE  def #-}
+
+-- | Default limit.
+--
+cLimitTo :: Int
+cLimitTo = 1024
+{-# INLINE cLimitTo #-}
+
+-- | Default offset.
+--
+cOffsetBy :: Int
+cOffsetBy = 0
+{-# INLINE cOffsetBy #-}
+
+-- | Default key for cURL client configuration.
 --
 cCurlClientConfigKey :: (IsString a) => a
 cCurlClientConfigKey = "pacifica-metadata"
 {-# INLINE  cCurlClientConfigKey #-}
 
--- | Key for LDAP client configuration.
+-- | Default key for LDAP client configuration.
 --
 cLdapClientConfigKey :: (IsString a) => a
 cLdapClientConfigKey = "active-directory"
 {-# INLINE  cLdapClientConfigKey #-}
 
--- | Key for MySQL configuration for "archive" database.
+-- | Default key for MySQL configuration.
 --
-cMySQLConfigKeyArchive :: (IsString a) => a
-cMySQLConfigKeyArchive = "rbh_archive"
-{-# INLINE  cMySQLConfigKeyArchive #-}
-
--- | Key for MySQL configuration for "emslfs" database.
---
-cMySQLConfigKeyEmslFs :: (IsString a) => a
-cMySQLConfigKeyEmslFs = "rbh_emslfs"
-{-# INLINE  cMySQLConfigKeyEmslFs #-}
-
--- | Limit.
---
-cEntryLimitTo :: (Num a) => a
-cEntryLimitTo = 10
-{-# INLINE  cEntryLimitTo #-}
-
--- | Offset.
---
-cEntryOffsetBy :: (Num a) => a
-cEntryOffsetBy = 0
-{-# INLINE  cEntryOffsetBy #-}
+cMySQLConfigKey :: (IsString a) => a
+cMySQLConfigKey = "rbh"
+{-# INLINE  cMySQLConfigKey #-}

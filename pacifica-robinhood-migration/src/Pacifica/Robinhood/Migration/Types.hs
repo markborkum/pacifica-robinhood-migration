@@ -1,4 +1,5 @@
 {-# LANGUAGE  OverloadedStrings #-}
+{-# LANGUAGE  Rank2Types #-}
 {-# LANGUAGE  RecordWildCards #-}
 
 -- |
@@ -13,25 +14,41 @@
 --
 module Pacifica.Robinhood.Migration.Types where
 
+import           Control.Comonad.Cofree (Cofree(..))
+import           Control.Monad.Logger (LogLevel(..))
 import           Data.Aeson (FromJSON(..), ToJSON(..), (.:), (.=))
-import qualified Data.Aeson
+import           Data.Aeson.Types (Pair)
+import qualified Data.Aeson (object, withObject)
 import           Data.Map (Map)
+import           Data.String (IsString())
 import           Data.Text (Text)
+import qualified Data.Text (intercalate, splitOn, unpack)
+import qualified Data.Text.Encoding (encodeUtf8)
+import           Database.Persist.MySQL (MySQLConnectInfo)
+import qualified Database.Persist.MySQL (mkMySQLConnectInfo)
+import           Ldap.Client (Ldap, LdapError)
+import qualified Ldap.Client
+import           Network.Curl.Client (CurlClientEnv(..), CurlCmdSpec(..))
+import           Network.URL (Host(..), Protocol(..), URLType(Absolute))
+import           System.Process (CmdSpec(RawCommand))
 
 -- | The configuration for a Pacifica/Robinhood migration.
 --
 data Config = Config
   { _configAuthConfig :: AuthConfig -- ^ auth
+  , _configFilePathConfig :: FilePathConfig -- ^ filepath
   } deriving (Eq, Ord, Read, Show)
 
 instance FromJSON Config where
   parseJSON = Data.Aeson.withObject "Config" $ \v -> pure Config
     <*> v .: "auth"
+    <*> v .: "filepath"
   {-# INLINE  parseJSON #-}
 
 instance ToJSON Config where
   toJSON Config{..} = Data.Aeson.object
     [ "auth" .= _configAuthConfig
+    , "filepath" .= _configFilePathConfig
     ]
   {-# INLINE  toJSON #-}
 
@@ -87,6 +104,33 @@ instance ToJSON CurlClientConfig where
     ]
   {-# INLINE  toJSON #-}
 
+-- | Converts a cURL client configuration into an environment for the cURL client monad transformer.
+--
+fromCurlClientConfig :: CurlClientConfig -> CurlClientEnv
+fromCurlClientConfig CurlClientConfig{..} = CurlClientEnv spec url_type0
+  where
+    -- | The cURL command specification.
+    --
+    spec :: CurlCmdSpec
+    spec = CurlCmdSpec $ RawCommand
+      (Data.Text.unpack _curlClientConfigCommandPath)
+      (map Data.Text.unpack _curlClientConfigCommandArguments)
+    -- | The URL type.
+    --
+    url_type0 :: URLType
+    url_type0 = Absolute $ Host prot0 (Data.Text.unpack _curlClientConfigHost) _curlClientConfigPort
+      where
+        -- | If present, convert "ftp[s]" and "http[s]" into data object. Otherwise, return "raw protocol".
+        --
+        prot0 :: Protocol
+        prot0 = case Data.Text.unpack _curlClientConfigProtocol of
+          "ftp" -> FTP False
+          "ftps" -> FTP True
+          "http" -> HTTP False
+          "https" -> HTTP True
+          x -> RawProt x
+{-# INLINE  fromCurlClientConfig #-}
+
 -- | The LDAP client configuration for a Pacifica/Robinhood migration.
 --
 data LdapClientConfig = LdapClientConfig
@@ -106,6 +150,16 @@ instance ToJSON LdapClientConfig where
     , "port" .= _ldapClientConfigPort
     ]
   {-# INLINE  toJSON #-}
+
+-- | Wrap a continuation whose delayed computation uses 'Ldap.Client.Plain'.
+--
+newtype WrappedLdap = WrapLdap { unwrapLdap :: forall a. (Ldap -> IO a) -> IO (Either LdapError a) }
+
+-- | Converts a LDAP configuration into a deferred computation in the 'IO' monad.
+--
+withLdapClientConfig :: LdapClientConfig -> WrappedLdap
+withLdapClientConfig LdapClientConfig{..} = WrapLdap (Ldap.Client.with (Ldap.Client.Plain $ Data.Text.unpack _ldapClientConfigHost) (fromInteger _ldapClientConfigPort))
+{-# INLINE  withLdapClientConfig #-}
 
 -- | The MySQL configuration for a Pacifica/Robinhood migration.
 --
@@ -132,3 +186,110 @@ instance ToJSON MySQLConfig where
     , "database_name" .= _mySQLConfigDatabaseName
     ]
   {-# INLINE  toJSON #-}
+
+-- | Converts a MySQL configuration into a "connection information" data object.
+--
+fromMySQLConfig :: MySQLConfig -> MySQLConnectInfo
+fromMySQLConfig MySQLConfig{..} = Database.Persist.MySQL.mkMySQLConnectInfo
+  (Data.Text.unpack _mySQLConfigHost)
+  (Data.Text.Encoding.encodeUtf8 _mySQLConfigUsername)
+  (Data.Text.Encoding.encodeUtf8 _mySQLConfigPassword)
+  (Data.Text.Encoding.encodeUtf8 _mySQLConfigDatabaseName)
+{-# INLINE  fromMySQLConfig #-}
+
+-- | The 'FilePath' configuration for a Pacifica/Robinhood migration.
+--
+data FilePathConfig = FilePathConfig
+  { _filePathConfigFilePathPattern :: FilePathPattern
+  } deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathConfig where
+  parseJSON v = pure FilePathConfig
+    <*> parseJSON v
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathConfig where
+  toJSON FilePathConfig{..} = toJSON _filePathConfigFilePathPattern
+  {-# INLINE  toJSON #-}
+
+-- | A pattern for 'FilePath's.
+--
+newtype FilePathPattern = FilePathPattern { getFilePathPattern :: Cofree (Map FilePath) [FilePathRule] }
+  deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathPattern where
+  parseJSON = Data.Aeson.withObject "FilePathPattern" $ \v -> pure FilePathPattern
+    <*> (pure (:<)
+      <*> v .: "rules"
+      <*> (fmap getFilePathPattern <$> v .: "children"))
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathPattern where
+  toJSON (FilePathPattern (rs :< m)) = Data.Aeson.object
+    [ "rules" .= rs
+    , "children" .= fmap FilePathPattern m
+    ]
+  {-# INLINE  toJSON #-}
+
+-- | A rule for 'FilePath's.
+--
+data FilePathRule
+  = BreakFilePathRule -- ^ "break"
+  | PassFilePathRule -- ^ "pass"
+  | PrintFilePathRule Text -- "print"
+  | LoggerFilePathRule LogLevel Text -- ^ "logger.x" where "x" is in {"debug", "info", "warn", "error"}
+  deriving (Eq, Ord, Read, Show)
+
+instance FromJSON FilePathRule where
+  parseJSON = Data.Aeson.withObject "FilePathRule" $ \v -> do
+    nameText <- v .: cName
+    case Data.Text.splitOn "." nameText of
+      ["break"] -> pure BreakFilePathRule
+      ["pass"] -> pure PassFilePathRule
+      ["print"] -> pure PrintFilePathRule
+        <*> v .: "message"
+      ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
+        <*> v .: "message"
+      _ -> fail $ "Invalid \"" ++ cName ++ "\": " ++ Data.Text.unpack nameText
+  {-# INLINE  parseJSON #-}
+
+instance ToJSON FilePathRule where
+  toJSON rule = Data.Aeson.object $ (cName .= toName rule) : toPairs rule
+    where
+      toName :: FilePathRule -> Text
+      toName BreakFilePathRule = "break"
+      toName PassFilePathRule = "pass"
+      toName (PrintFilePathRule _) = "print"
+      toName (LoggerFilePathRule lvl _) = Data.Text.intercalate "." ["logger", fromLogLevel lvl]
+      {-# INLINE  toName #-}
+      toPairs :: FilePathRule -> [Pair]
+      toPairs BreakFilePathRule = []
+      toPairs PassFilePathRule = []
+      toPairs (PrintFilePathRule msg) = ["message" .= msg]
+      toPairs (LoggerFilePathRule _ msg) = ["message" .= msg]
+      {-# INLINE  toPairs #-}
+  {-# INLINE  toJSON #-}
+
+-- | Convert a 'LogLevel' to a textual identifier.
+--
+fromLogLevel :: LogLevel -> Text
+fromLogLevel LevelDebug = "debug"
+fromLogLevel LevelInfo = "info"
+fromLogLevel LevelWarn = "warn"
+fromLogLevel LevelError = "error"
+fromLogLevel (LevelOther x) = x
+{-# INLINE  fromLogLevel #-}
+
+-- | Convert a textual identifier to a 'LogLevel'.
+--
+toLogLevel :: Text -> LogLevel
+toLogLevel "debug" = LevelDebug
+toLogLevel "info" = LevelInfo
+toLogLevel "warn" = LevelWarn
+toLogLevel "error" = LevelError
+toLogLevel x = LevelOther x
+{-# INLINE  toLogLevel #-}
+
+cName :: (IsString a) => a
+cName = "__name__"
+{-# INLINE cName #-}

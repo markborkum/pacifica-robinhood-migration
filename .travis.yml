@@ -44,3 +44,5 @@ script:
     - stack --no-terminal --skip-ghc-check test robinhood:test:robinhood-test --coverage
     - stack --no-terminal --skip-ghc-check test robinhood-extras:test:robinhood-extras-test --haddock --no-haddock-deps
     - stack --no-terminal --skip-ghc-check test robinhood-extras:test:robinhood-extras-test --coverage
+    - stack --no-terminal --skip-ghc-check test robinhood-treemap:test:robinhood-treemap-test --haddock --no-haddock-deps
+    - stack --no-terminal --skip-ghc-check test robinhood-treemap:test:robinhood-treemap-test --coverage

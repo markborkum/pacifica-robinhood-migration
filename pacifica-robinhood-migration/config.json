@@ -16,17 +16,38 @@
       }
     },
     "mysql": {
-      "rbh_archive": {
-        "host": "my.sql.host",
+      "rbh": {
+        "host": "my.mysql.host",
         "username": "root",
         "password": "root",
-        "database_name": "rbh_archive"
+        "database_name": "rbh"
+      }
+    }
+  },
+  "filepath": {
+    "rules": [
+      {
+        "__name__": "print",
+        "message": "%haystack%"
+      }
+    ],
+    "children": {
+      "/path/to/excluded/files/": {
+        "rules": [
+          {
+            "__name__": "break"
+          }
+        ],
+        "children": {}
       },
-      "rbh_emslfs": {
-        "host": "my.sql.host",
-        "username": "root",
-        "password": "root",
-        "database_name": "rbh_emslfs"
+      "/path/to/included/files/**/*.zip": {
+        "rules": [
+          {
+            "__name__": "logger.info",
+            "message": "Successfully matched zip archive \"%haystack%\" using \"%needle%\"."
+          }
+        ],
+        "children" : {}
       }
     }
   }
