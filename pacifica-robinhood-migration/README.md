@@ -21,9 +21,6 @@ The complete command is as follows:
 ```sh
 stack exec pacifica-robinhood-migration-exe -- \
    --limit=1024 --offset=0 \
-   --curl-client="pacifica-metadata" \
-   --ldap-client="active-directory" \
-   --mysql="rbh" \
    < pacifica-robinhood-migration/config.json > out.txt 2> error.txt
 ```
 
@@ -41,14 +38,6 @@ Specify the size `--limit` and initial `--offset` for the sliding window for the
 
 ```sh
    --limit=1024 --offset=0 \
-```
-
-Specify the keys for the [cURL](https://curl.haxx.se/), LDAP and [MySQL](https://www.mysql.com/) authentication configurations.
-
-```sh
-   --curl-client="pacifica-metadata" \
-   --ldap-client="active-directory" \
-   --mysql="rbh" \
 ```
 
 Read the configuration file `pacifica-robinhood-migration/config.json` from the standard input stream; write the standard output stream to the file `out.txt`; and, write the standard error stream to the file `error.txt`.
@@ -80,27 +69,21 @@ Paths are matched using the [POSIX glob() function](http://man7.org/linux/man-pa
 {
   "auth": {
     "curl-client": {
-      "pacifica-metadata": {
-        "command_path": "curl",
-        "command_arguments": ["--user", "root:root"],
-        "protocol": "http",
-        "host": "my.pacifica.metadata.host",
-        "port": 80
-      }
+      "command_path": "curl",
+      "command_arguments": ["--user", "root:root"],
+      "protocol": "http",
+      "host": "my.pacifica.metadata.host",
+      "port": 80
     },
     "ldap-client": {
-      "active-directory": {
-        "host": "my.ldap.host",
-        "port": 389
-      }
+      "host": "my.ldap.host",
+      "port": 389
     },
     "mysql": {
-      "rbh": {
-        "host": "my.mysql.host",
-        "username": "root",
-        "password": "root",
-        "database_name": "rbh"
-      }
+      "host": "my.mysql.host",
+      "username": "root",
+      "password": "root",
+      "database_name": "rbh"
     }
   },
   "filepath": {
