@@ -227,10 +227,10 @@ isMatchFilePath needle haystack = (needle == "") || System.FilePath.Glob.match (
 -- NOTE Uses a depth-first search.
 --
 runFilePathPattern :: (AppFunConstraint m val) => FilePathPattern -> FilePath -> FilePath -> AppFunEnv val -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) Bool
-runFilePathPattern (FilePathPattern (rs :< m)) needle haystack env
+runFilePathPattern (FilePathPattern (rule :< m)) needle haystack env
   -- If the needle is a match for the haystack, then run the 'FilePathRule's for
   -- the current node, and then run the 'FilePathPattern's for the child nodes.
-  | isMatchFilePath needle haystack = foldr (\rule -> runFilePathRule rule needle haystack env) (fmap or <$> mapM (uncurry (\new_fp pattern -> runFilePathPattern pattern (needle </> new_fp) haystack env)) . Data.Map.toAscList) rs (fmap FilePathPattern m)
+  | isMatchFilePath needle haystack = runFilePathRule rule needle haystack env (fmap or <$> mapM (uncurry (\new_fp pattern -> runFilePathPattern pattern (needle </> new_fp) haystack env)) . Data.Map.toAscList) (fmap FilePathPattern m)
   -- Otherwise, terminate.
   | otherwise = return False
 {-# INLINE  runFilePathPattern #-}

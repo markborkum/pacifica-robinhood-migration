@@ -214,20 +214,20 @@ instance ToJSON FilePathConfig where
 
 -- | A pattern for 'FilePath's.
 --
-newtype FilePathPattern = FilePathPattern { getFilePathPattern :: Cofree (Map FilePath) [FilePathRule] }
+newtype FilePathPattern = FilePathPattern { getFilePathPattern :: Cofree (Map FilePath) FilePathRule }
   deriving (Eq, Ord, Read, Show)
 
 instance FromJSON FilePathPattern where
   parseJSON = Data.Aeson.withObject "FilePathPattern" $ \v -> pure FilePathPattern
     <*> (pure (:<)
-      <*> v .: "rules"
-      <*> (fmap getFilePathPattern <$> v .: "children"))
+      <*> v .: cFilePathRule
+      <*> (fmap getFilePathPattern <$> v .: cFilePathPatternList))
   {-# INLINE  parseJSON #-}
 
 instance ToJSON FilePathPattern where
-  toJSON (FilePathPattern (rs :< m)) = Data.Aeson.object
-    [ "rules" .= rs
-    , "children" .= fmap FilePathPattern m
+  toJSON (FilePathPattern (rule :< m)) = Data.Aeson.object
+    [ cFilePathRule .= rule
+    , cFilePathPatternList .= fmap FilePathPattern m
     ]
   {-# INLINE  toJSON #-}
 
@@ -253,9 +253,9 @@ instance FromJSON FilePathRule where
       ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
         <*> v .: "message"
       ["all"] -> pure AllFilePathRule
-        <*> v .: "rules"
+        <*> v .: cFilePathRuleList
       ["any"] -> pure AnyFilePathRule
-        <*> v .: "rules"
+        <*> v .: cFilePathRuleList
       _ -> fail $ "Invalid \"" ++ cName ++ "\": " ++ Data.Text.unpack nameText
   {-# INLINE  parseJSON #-}
 
@@ -275,8 +275,8 @@ instance ToJSON FilePathRule where
       toPairs PassFilePathRule = []
       toPairs (PrintFilePathRule msg) = ["message" .= msg]
       toPairs (LoggerFilePathRule _ msg) = ["message" .= msg]
-      toPairs (AllFilePathRule rules) = ["rules" .= rules]
-      toPairs (AnyFilePathRule rules) = ["rules" .= rules]
+      toPairs (AllFilePathRule rules) = [cFilePathRuleList .= rules]
+      toPairs (AnyFilePathRule rules) = [cFilePathRuleList .= rules]
       {-# INLINE  toPairs #-}
   {-# INLINE  toJSON #-}
 
@@ -303,3 +303,15 @@ toLogLevel x = LevelOther x
 cName :: (IsString a) => a
 cName = "__name__"
 {-# INLINE cName #-}
+
+cFilePathPatternList :: (IsString a) => a
+cFilePathPatternList = "children"
+{-# INLINE cFilePathPatternList #-}
+
+cFilePathRule :: (IsString a) => a
+cFilePathRule = "rule"
+{-# INLINE cFilePathRule #-}
+
+cFilePathRuleList :: (IsString a) => a
+cFilePathRuleList = "rules"
+{-# INLINE cFilePathRuleList #-}
