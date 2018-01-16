@@ -40,6 +40,7 @@ import qualified Data.ByteString.Lazy
 import           Data.Conduit (ConduitM)
 import           Data.Data (Data())
 import           Data.Default (Default(def))
+import           Data.Functor (void)
 import           Data.String (IsString())
 import           Data.Text (Text)
 import qualified Data.Text
@@ -72,7 +73,7 @@ main = do
     -- | Handler for each 'EntryFullPath' record.
     --
     handleEntryFullPath :: (AppFunConstraint m EntryFullPath) => AppFunEnv EntryFullPath -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()
-    handleEntryFullPath env@(AppFunEnv (AppEnv (Config { _configFilePathConfig = FilePathConfig { _filePathConfigFilePathPattern = x } }) _ _ _) (Entity { entityVal = EntryFullPath { entryFullPathFullPath = fp } })) = runFilePathPattern x "" (Data.Text.unpack fp) env
+    handleEntryFullPath env@(AppFunEnv (AppEnv (Config { _configFilePathConfig = FilePathConfig { _filePathConfigFilePathPattern = x } }) _ _ _) (Entity { entityVal = EntryFullPath { entryFullPathFullPath = fp } })) = void $ runFilePathPattern x "" (Data.Text.unpack fp) env
 
   -- Read the command-line arguments.
   Command{..} <- System.Console.CmdArgs.Implicit.cmdArgs def

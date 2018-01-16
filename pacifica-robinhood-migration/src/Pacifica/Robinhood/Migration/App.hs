@@ -226,26 +226,26 @@ isMatchFilePath needle haystack = (needle == "") || System.FilePath.Glob.match (
 --
 -- NOTE Uses a depth-first search.
 --
-runFilePathPattern :: (AppFunConstraint m val) => FilePathPattern -> FilePath -> FilePath -> AppFunEnv val -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()
+runFilePathPattern :: (AppFunConstraint m val) => FilePathPattern -> FilePath -> FilePath -> AppFunEnv val -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) Bool
 runFilePathPattern (FilePathPattern (rs :< m)) needle haystack env
   -- If the needle is a match for the haystack, then run the 'FilePathRule's for
   -- the current node, and then run the 'FilePathPattern's for the child nodes.
-  | isMatchFilePath needle haystack = foldr (\rule -> runFilePathRule rule needle haystack env) (mapM_ (uncurry (\new_fp pattern -> runFilePathPattern pattern (needle </> new_fp) haystack env)) . Data.Map.toAscList) rs (fmap FilePathPattern m)
+  | isMatchFilePath needle haystack = foldr (\rule -> runFilePathRule rule needle haystack env) (fmap or <$> mapM (uncurry (\new_fp pattern -> runFilePathPattern pattern (needle </> new_fp) haystack env)) . Data.Map.toAscList) rs (fmap FilePathPattern m)
   -- Otherwise, terminate.
-  | otherwise = return ()
+  | otherwise = return False
 {-# INLINE  runFilePathPattern #-}
 
 -- | Run a rule for 'FilePath's.
 --
-runFilePathRule :: (AppFunConstraint m val) => FilePathRule -> FilePath -> FilePath -> AppFunEnv val -> (a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()) -> a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) ()
-runFilePathRule rule needle haystack _env k x =
+runFilePathRule :: (AppFunConstraint m val) => FilePathRule -> FilePath -> FilePath -> AppFunEnv val -> (a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) Bool) -> a -> ConduitM () Void (ReaderT SqlBackend (ResourceT m)) Bool
+runFilePathRule rule needle haystack env k x =
   let
     ruleS :: Text
     ruleS = Data.Text.pack $ show rule
   in case rule of
     BreakFilePathRule -> do
       -- Short-circuit the evaluation.
-      return ()
+      return True
     PassFilePathRule -> do
       -- Do nothing.
       k $! x
@@ -257,6 +257,20 @@ runFilePathRule rule needle haystack _env k x =
       -- Format the message, and then log at the specified level.
       Control.Monad.Logger.logWithoutLoc "pacifica-robinhood-migration" lvl $ formatText ruleS needle haystack msg
       k $! x
+    AllFilePathRule [] -> do
+      return True
+    AllFilePathRule (new_rule : rules) -> do
+      b <- runFilePathRule new_rule needle haystack env k x
+      case b of
+        False -> return False
+        True -> runFilePathRule (AllFilePathRule rules) needle haystack env k x
+    AnyFilePathRule [] -> do
+      return False
+    AnyFilePathRule (new_rule : rules) -> do
+      b <- runFilePathRule new_rule needle haystack env k x
+      case b of
+        False -> runFilePathRule (AnyFilePathRule rules) needle haystack env k x
+        True -> return True
 {-# INLINE  runFilePathRule #-}
 
 -- | Format text for printing.

@@ -238,6 +238,8 @@ data FilePathRule
   | PassFilePathRule -- ^ "pass"
   | PrintFilePathRule Text -- "print"
   | LoggerFilePathRule LogLevel Text -- ^ "logger.x" where "x" is in {"debug", "info", "warn", "error"}
+  | AllFilePathRule [FilePathRule] -- ^ "all"
+  | AnyFilePathRule [FilePathRule] -- ^ "any"
   deriving (Eq, Ord, Read, Show)
 
 instance FromJSON FilePathRule where
@@ -250,6 +252,10 @@ instance FromJSON FilePathRule where
         <*> v .: "message"
       ["logger", t] -> pure (LoggerFilePathRule (toLogLevel t))
         <*> v .: "message"
+      ["all"] -> pure AllFilePathRule
+        <*> v .: "rules"
+      ["any"] -> pure AnyFilePathRule
+        <*> v .: "rules"
       _ -> fail $ "Invalid \"" ++ cName ++ "\": " ++ Data.Text.unpack nameText
   {-# INLINE  parseJSON #-}
 
@@ -261,12 +267,16 @@ instance ToJSON FilePathRule where
       toName PassFilePathRule = "pass"
       toName (PrintFilePathRule _) = "print"
       toName (LoggerFilePathRule lvl _) = Data.Text.intercalate "." ["logger", fromLogLevel lvl]
+      toName (AllFilePathRule _) = "all"
+      toName (AnyFilePathRule _) = "any"
       {-# INLINE  toName #-}
       toPairs :: FilePathRule -> [Pair]
       toPairs BreakFilePathRule = []
       toPairs PassFilePathRule = []
       toPairs (PrintFilePathRule msg) = ["message" .= msg]
       toPairs (LoggerFilePathRule _ msg) = ["message" .= msg]
+      toPairs (AllFilePathRule rules) = ["rules" .= rules]
+      toPairs (AnyFilePathRule rules) = ["rules" .= rules]
       {-# INLINE  toPairs #-}
   {-# INLINE  toJSON #-}
 
