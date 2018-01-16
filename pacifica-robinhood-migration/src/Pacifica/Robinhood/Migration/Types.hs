@@ -55,9 +55,9 @@ instance ToJSON Config where
 -- | The authentication configuration for a Pacifica/Robinhood migration, including: cURL, LDAP and MySQL.
 --
 data AuthConfig = AuthConfig
-  { _authConfigCurlClientConfig :: Map Text CurlClientConfig -- ^ curl-client
-  , _authConfigLdapClientConfig :: Map Text LdapClientConfig -- ^ ldap-client
-  , _authConfigMySQLConfig :: Map Text MySQLConfig -- ^ mysql
+  { _authConfigCurlClientConfig :: CurlClientConfig -- ^ curl-client
+  , _authConfigLdapClientConfig :: LdapClientConfig -- ^ ldap-client
+  , _authConfigMySQLConfig :: MySQLConfig -- ^ mysql
   } deriving (Eq, Ord, Read, Show)
 
 instance FromJSON AuthConfig where

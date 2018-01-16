@@ -75,13 +75,7 @@ data AppEnv = AppEnv !Config !CurlClientEnv !WrappedLdap !MySQLConnectInfo
 -- | An error, thrown by the application at run-time.
 --
 data AppError
-  = CurlClientConfigNotFound !Text
-  -- ^ The cURL client configuration was not found (c.f., 'cCurlClientConfigKey').
-  | LdapClientConfigNotFound !Text
-  -- ^ The LDAP client configuration was not found (c.f., 'cLdapClientConfigKey').
-  | MySQLConfigNotFound !Text
-  -- ^ The MySQL configuration was not found (c.f., 'cMySQLConfigKeyArchive' and 'cMySQLConfigKeyEmslFs').
-  | DecodeConfigFailure !String
+  = DecodeConfigFailure !String
   -- ^ The configuration file could not be decoded.
   deriving (Eq, Ord, Read, Show)
 
@@ -120,8 +114,8 @@ instance MonadTransControl AppT where
 --
 -- Note: This function is *not* exposed to end-users.
 --
-fromByteString :: Text -> Text -> Text -> IO ByteString -> ExceptT AppError IO AppEnv
-fromByteString kCurlClientConfig kLdapClientConfig kMySQLConfig io = do
+fromByteString :: IO ByteString -> ExceptT AppError IO AppEnv
+fromByteString io = do
   configEither <- liftIO $ fmap Data.Aeson.eitherDecode io
   case configEither of
     -- If the contents cannot be decoded, then display an error message.
@@ -129,35 +123,21 @@ fromByteString kCurlClientConfig kLdapClientConfig kMySQLConfig io = do
       throwError $ DecodeConfigFailure err
     -- Otherwise, continue...
     Right config -> do
-      -- Convert the cURL client configuration.
-      case fmap fromCurlClientConfig $ Data.Map.lookup kCurlClientConfig $ _authConfigCurlClientConfig $ _configAuthConfig config of
-        -- If the cURL client configuration cannot be converted, then display an error message.
-        Nothing -> do
-          throwError $ CurlClientConfigNotFound kCurlClientConfig
-        -- Otherwise, continue...
-        Just envCurlClient -> do
-          -- Convert the LDAP client configuration.
-          case fmap withLdapClientConfig $ Data.Map.lookup kLdapClientConfig $ _authConfigLdapClientConfig $ _configAuthConfig config of
-            -- If the LDAP client configuration cannot be converted, then display an error message.
-            Nothing -> do
-              throwError $ LdapClientConfigNotFound kLdapClientConfig
-            -- Otherwise, continue...
-            Just envLdapClient -> do
-              -- Convert the MySQL configuration for MySQL database.
-              case fmap fromMySQLConfig $ Data.Map.lookup kMySQLConfig $ _authConfigMySQLConfig $ _configAuthConfig config of
-                -- If the MySQL configuration cannot be converted, then display an error message.
-                Nothing -> do
-                  throwError $ MySQLConfigNotFound kMySQLConfig
-                -- Otherwise, continue...
-                Just envMySQL -> do
-                  return $ AppEnv config envCurlClient envLdapClient envMySQL
+      let
+        -- Convert the cURL client configuration.
+        envCurlClient = fromCurlClientConfig $ _authConfigCurlClientConfig $ _configAuthConfig config
+        -- Convert the LDAP client configuration.
+        envLdapClient = withLdapClientConfig $ _authConfigLdapClientConfig $ _configAuthConfig config
+        -- Convert the MySQL configuration for MySQL database.
+        envMySQL = fromMySQLConfig $ _authConfigMySQLConfig $ _configAuthConfig config
+      return $ AppEnv config envCurlClient envLdapClient envMySQL
 {-# INLINABLE  fromByteString #-}
 
 -- | Run an 'AppT' by providing a computation that returns a 'ByteString' whose
 -- contents provide the configuration.
 --
-runAppTFromByteString :: AppT IO () -> Text -> Text -> Text -> IO ByteString -> IO (Either AppError ())
-runAppTFromByteString t kCurlClientConfig kLdapClientConfig kMySQLConfig = runExceptT . join . fmap (runReaderT (runAppT t)) . fromByteString kCurlClientConfig kLdapClientConfig kMySQLConfig
+runAppTFromByteString :: AppT IO () -> IO ByteString -> IO (Either AppError ())
+runAppTFromByteString t = runExceptT . join . fmap (runReaderT (runAppT t)) . fromByteString
 {-# INLINABLE  runAppTFromByteString #-}
 
 -- | The constraint for an arbitrary function for an application.

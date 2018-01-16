@@ -1,27 +1,21 @@
 {
   "auth": {
     "curl-client": {
-      "pacifica-metadata": {
-        "command_path": "curl",
-        "command_arguments": ["--user", "root:root"],
-        "protocol": "http",
-        "host": "my.pacifica.metadata.host",
-        "port": 80
-      }
+      "command_path": "curl",
+      "command_arguments": ["--user", "root:root"],
+      "protocol": "http",
+      "host": "my.pacifica.metadata.host",
+      "port": 80
     },
     "ldap-client": {
-      "active-directory": {
-        "host": "my.ldap.host",
-        "port": 389
-      }
+      "host": "my.ldap.host",
+      "port": 389
     },
     "mysql": {
-      "rbh": {
-        "host": "my.mysql.host",
-        "username": "root",
-        "password": "root",
-        "database_name": "rbh"
-      }
+      "host": "my.mysql.host",
+      "username": "root",
+      "password": "root",
+      "database_name": "rbh"
     }
   },
   "filepath": {
