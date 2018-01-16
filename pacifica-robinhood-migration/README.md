@@ -70,7 +70,7 @@ The `"auth"` section is a has three sub-sections:
 * `"ldap-client"` The LDAP client authentication settings for Active Directory.
 * `"mysql"` The [MySQL](https://www.mysql.com/) authentication settings for [Robinhood Policy Engine](https://github.com/cea-hpc/robinhood).
 
-The `"filepath"` section is a tree-map, where paths from the root of the tree represent file path. Each node in the tree-map has a list of `"rules"` and a dictionary of `"children"`.
+The `"filepath"` section is a tree-map, where paths from the root of the tree represent file path. Each node in the tree-map has a `"rule"` and a dictionary of `"children"`.
 
 The key for each child node is a path fragment.
 The path for a node is the concatenation of the path fragments for its ancestors in the tree and itself.
@@ -104,28 +104,37 @@ Paths are matched using the [POSIX glob() function](http://man7.org/linux/man-pa
     }
   },
   "filepath": {
-    "rules": [
-      {
-        "__name__": "print",
-        "message": "%haystack%"
-      }
-    ],
+    "rule": {
+      "__name__": "any",
+      "rules": [
+        {
+          "__name__": "print",
+          "message": "%haystack%"
+        }
+      ]
+    },
     "children": {
       "/path/to/excluded/files/": {
-        "rules": [
-          {
-            "__name__": "break"
-          }
-        ],
+        "rule": {
+          "__name__": "any",
+          "rules": [
+            {
+              "__name__": "break"
+            }
+          ]
+        },
         "children": {}
       },
       "/path/to/included/files/**/*.zip": {
-        "rules": [
-          {
-            "__name__": "logger.info",
-            "message": "Successfully matched zip archive \"%haystack%\" using \"%needle%\"."
-          }
-        ],
+        "rule": {
+          "__name__": "any",
+          "rules": [
+            {
+              "__name__": "logger.info",
+              "message": "Successfully matched zip archive \"%haystack%\" using \"%needle%\"."
+            }
+          ]
+        },
         "children" : {}
       }
     }
@@ -160,6 +169,8 @@ The (fictional) rule in the above example is named `example` and has three argum
 | `pass` | Do nothing. | None |
 | `print` | Format `message` (see format string arguments) and print to standard output stream. | `message:String` |
 | `logger.{debug,info,warn,error}` | Format `message` (see format string arguments) and print to standard error stream via logger at specified level. | `message:String` |
+| `any` | Evaluates each item in the list of `rules` and short-circuit the evaluation if the evaluation of an item succeeds. | `rules:Array<Rule>` |
+| `all` | Evaluates each item in the list of `rules` and short-circuit the evaluation if the evaluation of an item fails. | `rules:Array<Rule>` |
 
 | Format string argument name | Description |
 |-|-|
